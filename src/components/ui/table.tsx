@@ -1,0 +1,102 @@
+'use client';
+
+import * as React from 'react';
+
+import { cn } from '@/lib/utils';
+import { Show } from '../utilities';
+import { SkeletonWrapper } from './skeleton';
+
+type TableSkeletonProps = {
+  loading?: boolean;
+  row?: number;
+  col?: number;
+};
+
+function Table({ className, ...props }: React.ComponentProps<'table'>) {
+  return (
+    <div data-slot='table-container' className='relative w-full overflow-x-auto rounded-md border border-gray-50'>
+      <table data-slot='table' className={cn('w-full caption-bottom text-sm', className)} {...props} />
+    </div>
+  );
+}
+
+function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
+  return <thead data-slot='table-header' className={cn('bg-muted text-muted-foreground', className)} {...props} />;
+}
+
+function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
+  return <tbody data-slot='table-body' className={cn('[&_tr:last-child]:border-0', className)} {...props} />;
+}
+
+function TableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
+  return (
+    <tfoot
+      data-slot='table-footer'
+      className={cn('border-t bg-muted/50 font-medium [&>tr]:last:border-b-0', className)}
+      {...props}
+    />
+  );
+}
+
+function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
+  return (
+    <tr
+      data-slot='table-row'
+      className={cn(
+        'border-gray-50 border-b bg-white transition-colors hover:bg-gray-100 data-[state=selected]:bg-gray-200',
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function TableHead({ className, ...props }: React.ComponentProps<'th'>) {
+  return (
+    <th
+      data-slot='table-head'
+      className={cn(
+        'h-9 whitespace-nowrap px-3 text-left align-middle text-gray-500 text-sm [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
+  return (
+    <td
+      data-slot='table-cell'
+      className={cn(
+        'h-16 whitespace-nowrap px-3 align-middle text-gray-500 text-sm [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function TableCaption({ className, ...props }: React.ComponentProps<'caption'>) {
+  return (
+    <caption data-slot='table-caption' className={cn('mt-4 text-muted-foreground text-sm', className)} {...props} />
+  );
+}
+
+export { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow };
+
+export const TableSkeleton = ({ loading = false, row = 10, col = 4 }: TableSkeletonProps) => {
+  return (
+    <Show when={loading}>
+      {Array.from({ length: row }, (_, index) => (
+        <TableRow key={index}>
+          {Array.from({ length: col }, (__, index2) => (
+            <TableCell key={index2} className='py-2'>
+              <SkeletonWrapper loading={loading} className='h-7 w-full min-w-[16px] bg-gray-400'></SkeletonWrapper>
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+    </Show>
+  );
+};

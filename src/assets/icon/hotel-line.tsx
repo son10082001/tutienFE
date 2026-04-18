@@ -1,0 +1,12 @@
+import type { SVGProps } from 'react';
+
+export function HotelLineIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      <path
+        d='M17.5 16.75H2.5V15.25H3.25V4C3.25 3.80109 3.32902 3.61032 3.46967 3.46967C3.61032 3.32902 3.80109 3.25 4 3.25H14.5C14.6989 3.25 14.8897 3.32902 15.0303 3.46967C15.171 3.61032 15.25 3.80109 15.25 4V7.75H16.75V15.25H17.5V16.75ZM13.75 15.25H15.25V9.25H10.75V15.25H12.25V10.75H13.75V15.25ZM13.75 7.75V4.75H4.75V15.25H9.25V7.75H13.75ZM6.25 9.25H7.75V10.75H6.25V9.25ZM6.25 12.25H7.75V13.75H6.25V12.25ZM6.25 6.25H7.75V7.75H6.25V6.25Z'
+        fill='currentColor'
+      />
+    </svg>
+  );
+}
