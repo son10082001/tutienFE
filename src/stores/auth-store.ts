@@ -3,6 +3,8 @@ import { COOKIE_KEY, cookieStorage, removeAuthStorage } from '@/utils/auth';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { firebaseSync } from '@/lib/firebaseSync';
+
 
 interface AuthState {
   access_token: string | null;
@@ -59,6 +61,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () =>
         set((state) => {
+          firebaseSync.reportLogout();
           removeAuthStorage();
           state.access_token = null;
           state.refresh_token = null;
@@ -74,6 +77,7 @@ export const useAuthStore = create<AuthStore>()(
 
       clearAuth: () =>
         set((state) => {
+          firebaseSync.reportLogout();
           removeAuthStorage();
           Object.assign(state, initialState);
         }),
