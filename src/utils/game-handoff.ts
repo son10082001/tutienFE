@@ -1,3 +1,5 @@
+import { getOrCreateDeviceGroupId } from './deviceGroup';
+
 /** Khớp với Cocos `PortalAuthBridge` / `LocaleUser` (game). */
 export const PORTAL_GAME_HANDOFF_KEY = 'TUTIEN_PORTAL_HANDOFF';
 
@@ -8,6 +10,7 @@ export type PortalGameHandoffPayload = {
   password: string;
   accessToken: string;
   apiBaseUrl: string;
+  deviceGroupId: string;
 };
 
 function readPortalLoginSession(): { userId: string; password: string } | null {
@@ -42,11 +45,16 @@ export function readPortalGameHandoff(): PortalGameHandoffPayload | null {
     if (!raw) return null;
     const o = JSON.parse(raw) as Partial<PortalGameHandoffPayload>;
     if (o.userId && o.password && o.accessToken && o.apiBaseUrl) {
+      const deviceGroupId =
+        o.deviceGroupId && typeof o.deviceGroupId === 'string' && o.deviceGroupId.length > 0
+          ? o.deviceGroupId
+          : getOrCreateDeviceGroupId();
       return {
         userId: String(o.userId),
         password: String(o.password),
         accessToken: String(o.accessToken),
         apiBaseUrl: String(o.apiBaseUrl).replace(/\/$/, ''),
+        deviceGroupId,
       };
     }
   } catch {
@@ -55,14 +63,22 @@ export function readPortalGameHandoff(): PortalGameHandoffPayload | null {
   return null;
 }
 
-export function setPortalGameHandoff(userId: string, password: string, accessToken: string, apiBaseUrl: string): void {
+export function setPortalGameHandoff(
+  userId: string,
+  password: string,
+  accessToken: string,
+  apiBaseUrl: string,
+  deviceGroupId?: string
+): void {
   if (typeof window === 'undefined') return;
   try {
+    const gid = deviceGroupId && deviceGroupId.length > 0 ? deviceGroupId : getOrCreateDeviceGroupId();
     const payload: PortalGameHandoffPayload = {
       userId,
       password,
       accessToken,
       apiBaseUrl: apiBaseUrl.replace(/\/$/, ''),
+      deviceGroupId: gid,
     };
     window.localStorage.setItem(PORTAL_GAME_HANDOFF_KEY, JSON.stringify(payload));
   } catch {
@@ -74,7 +90,7 @@ export function setPortalGameHandoff(userId: string, password: string, accessTok
 export function patchPortalGameHandoffAccessToken(accessToken: string): void {
   const cur = readPortalGameHandoff();
   if (!cur) return;
-  setPortalGameHandoff(cur.userId, cur.password, accessToken, cur.apiBaseUrl);
+  setPortalGameHandoff(cur.userId, cur.password, accessToken, cur.apiBaseUrl, cur.deviceGroupId);
 }
 
 /**
@@ -90,16 +106,21 @@ export function ensurePortalGameHandoffForLaunch(
     return false;
   }
   const base = apiBaseUrl.replace(/\/$/, '');
+  const gid = getOrCreateDeviceGroupId();
   const existing = readPortalGameHandoff();
   if (existing?.userId === portalUserId && existing.password) {
-    if (existing.accessToken !== accessToken || existing.apiBaseUrl !== base) {
-      setPortalGameHandoff(existing.userId, existing.password, accessToken, base);
+    if (
+      existing.accessToken !== accessToken ||
+      existing.apiBaseUrl !== base ||
+      existing.deviceGroupId !== gid
+    ) {
+      setPortalGameHandoff(existing.userId, existing.password, accessToken, base, gid);
     }
     return true;
   }
   const sess = readPortalLoginSession();
   if (sess && sess.userId === portalUserId && sess.password) {
-    setPortalGameHandoff(sess.userId, sess.password, accessToken, base);
+    setPortalGameHandoff(sess.userId, sess.password, accessToken, base, gid);
     return true;
   }
   return false;
@@ -119,14 +140,21 @@ export function clearPortalGameHandoff(): void {
   }
 }
 
-/** Base64url cho fragment URL (game decode bằng atob + decodeURIComponent). Chỉ userId/password để URL không quá dài; JWT nằm trong localStorage handoff (cùng origin). */
-export function encodeGameHandoffPayload(userId: string, password: string): string {
-  const json = JSON.stringify({ userId, password });
+/** Base64url cho fragment URL (game decode bằng atob + decodeURIComponent). Chỉ userId/password + deviceGroupId để URL không quá dài; JWT nằm trong localStorage handoff (cùng origin). */
+export function encodeGameHandoffPayload(userId: string, password: string, deviceGroupId?: string): string {
+  const gid = deviceGroupId && deviceGroupId.length > 0 ? deviceGroupId : getOrCreateDeviceGroupId();
+  const json = JSON.stringify({ userId, password, deviceGroupId: gid });
   return btoa(encodeURIComponent(json)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function buildGameLaunchUrlWithHandoff(baseUrl: string, userId: string, password: string): string {
+export function buildGameLaunchUrlWithHandoff(
+  baseUrl: string,
+  userId: string,
+  password: string,
+  deviceGroupId?: string
+): string {
   const url = baseUrl.replace(/\/$/, '');
-  const token = encodeGameHandoffPayload(userId, password);
+  const gid = deviceGroupId && deviceGroupId.length > 0 ? deviceGroupId : getOrCreateDeviceGroupId();
+  const token = encodeGameHandoffPayload(userId, password, gid);
   return `${url}#tutien_handoff=${token}`;
 }

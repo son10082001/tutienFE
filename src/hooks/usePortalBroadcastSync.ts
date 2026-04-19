@@ -1,10 +1,13 @@
 'use client';
 
 import { signIn, type UserInfoResponse } from '@/api/auth';
-import { FIREBASE_PLATFORM_PORTAL, firebaseSync, type FirebaseBroadcastData } from '@/lib/firebaseSync';
+import { CURRENT_SYNC_MODE, FIREBASE_PLATFORM_PORTAL, sessionSync, type FirebaseBroadcastData } from '@/lib/sessionSync';
+import { websocketSync } from '@/lib/websocketSync';
 import { useAuthStore } from '@/stores/auth-store';
-import { setPortalGameHandoff, savePortalGameLoginSession } from '@/utils/game-handoff';
+import { clearPortalGameHandoff, setPortalGameHandoff, savePortalGameLoginSession } from '@/utils/game-handoff';
+import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 import { API_URL } from '@/utils/const';
+import { ROUTES } from '@/lib/routes';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
@@ -17,9 +20,28 @@ export function usePortalBroadcastSync(): void {
   const lastSessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    firebaseSync.initEarly();
+    getOrCreateDeviceGroupId();
+    sessionSync.initEarly();
 
-    firebaseSync.listenBroadcast(async (data: FirebaseBroadcastData | null) => {
+    // Khoá auto-login cross-origin ở SYNC_MODE='websocket': khi server
+    // thông báo gid đã bị revoked (do FE hoặc game vừa logout), dọn sạch
+    // local credentials và đưa về /login. Firebase mode không cần vì đã
+    // có cơ chế retained session riêng và user xác nhận không bị lỗi này.
+    if (CURRENT_SYNC_MODE === 'websocket') {
+      websocketSync.setRevokedCallback((at, platform) => {
+        console.log('[SessionSync] revoked signal received at', at, 'from', platform || 'unknown');
+        clearPortalGameHandoff();
+        const { isAuthenticated, logout } = useAuthStore.getState();
+        if (isAuthenticated) {
+          logout();
+        }
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith(ROUTES.LOGIN)) {
+          window.location.href = ROUTES.LOGIN;
+        }
+      });
+    }
+
+    sessionSync.listenBroadcast(async (data: FirebaseBroadcastData | null) => {
       if (!data || !data.userId) return;
       if (String(data.platform ?? '') === FIREBASE_PLATFORM_PORTAL) return;
       if (data.sessionId && data.sessionId === lastSessionIdRef.current) return;
@@ -68,7 +90,7 @@ export function usePortalBroadcastSync(): void {
     });
 
     return () => {
-      firebaseSync.stopBroadcastListen();
+      sessionSync.stopBroadcastListen();
     };
   }, []);
 }

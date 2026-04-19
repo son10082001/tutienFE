@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { savePortalGameLoginSession, setPortalGameHandoff } from '@/utils/game-handoff';
 import { API_URL } from '@/utils/const';
 import { onMutateError } from '@/utils/common';
-import { firebaseSync } from '@/lib/firebaseSync';
+import { sessionSync } from '@/lib/sessionSync';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, User } from 'lucide-react';
@@ -39,7 +39,7 @@ const LoginPage = () => {
     onSuccess: (data, variables) => {
       setPortalGameHandoff(variables.userId, variables.password, data.accessToken, API_URL);
       savePortalGameLoginSession(variables.userId, variables.password);
-      firebaseSync.reportLogin(variables.userId, variables.password);
+      sessionSync.reportLogin(variables.userId, variables.password);
 
       const userInfo = {
         id: data?.user?.id,

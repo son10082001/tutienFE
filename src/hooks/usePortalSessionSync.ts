@@ -6,7 +6,7 @@ import { getAccessToken } from '@/utils/auth';
 import { API_URL } from '@/utils/const';
 import { clearPortalGameHandoff, ensurePortalGameHandoffForLaunch, savePortalGameLoginSession, setPortalGameHandoff } from '@/utils/game-handoff';
 import { useEffect, useRef } from 'react';
-import { firebaseSync } from '@/lib/firebaseSync';
+import { sessionSync } from '@/lib/sessionSync';
 import { signIn, type UserInfoResponse } from '@/api/auth';
 import { toast } from 'sonner';
 
@@ -31,17 +31,24 @@ export function usePortalSessionSync(enabled: boolean): void {
       return;
     }
 
-    // Initialize Firebase Sync for the current user if available
     const uid = portalUser?.userId || portalUser?.id;
     if (uid) {
-      firebaseSync.startListening(String(uid));
+      sessionSync.startListening(String(uid));
     }
 
-    firebaseSync.setSyncCallback(async (data) => {
+    sessionSync.setSyncCallback(async (data) => {
       // 1. Handle Logout Signal
+      // Chỉ coi là logout signal khi offline đến từ platform KHÁC (game).
+      // Nếu offline có platform là 'portal' (hoặc chính mình vừa ghi) thì
+      // đó là echo/retained state của chính portal → bỏ qua để tránh tự
+      // đá ngược về /login ngay khi vừa đăng nhập xong, đặc biệt với
+      // SYNC_MODE='websocket' nơi server có thể echo retained offline khi
+      // client subscribe.
       if (data.status === 'offline') {
+        const fromPlatform = String(data.platform ?? '');
+        if (fromPlatform === 'portal') return;
         if (isAuthenticated) {
-          console.log('[FirebaseSync] Logout signal received, logging out portal...');
+          console.log('[SessionSync] Logout signal received from', fromPlatform || 'unknown', '→ logging out portal...');
           logout();
           window.location.href = ROUTES.LOGIN;
         }

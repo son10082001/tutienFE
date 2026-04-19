@@ -76,7 +76,7 @@ const Profile = () => {
                       toast.error('Không mở được game. Vui lòng đăng nhập lại.');
                       return;
                     }
-                    const url = buildGameLaunchUrlWithHandoff(GAME_LAUNCH_URL, h.userId, h.password);
+                    const url = buildGameLaunchUrlWithHandoff(GAME_LAUNCH_URL, h.userId, h.password, h.deviceGroupId);
                     window.open(url, '_blank');
                   } catch {
                     toast.error('Không mở được game. Vui lòng đăng nhập lại.');

@@ -9,10 +9,24 @@ import {
   type Unsubscribe,
 } from 'firebase/database';
 import { firebaseConfig } from '../config/firebase';
+import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 
-const BROADCAST_PATH = 'broadcast/latest_login';
+const BROADCAST_PATH_SUFFIX = 'broadcast/latest_login';
 export const FIREBASE_PLATFORM_PORTAL = 'portal';
 export const FIREBASE_PLATFORM_GAME = 'game';
+
+/** Portal là nguồn truth của deviceGroupId — luôn có thể sinh mới nếu cần. */
+function getGid(): string {
+  return getOrCreateDeviceGroupId();
+}
+
+function sessionPath(userId: string): string {
+  return `groups/${getGid()}/sessions/${userId}`;
+}
+
+function broadcastPath(): string {
+  return `groups/${getGid()}/${BROADCAST_PATH_SUFFIX}`;
+}
 
 export type FirebaseSessionData = {
   status?: string;
@@ -59,7 +73,7 @@ class FirebaseSyncService {
 
   public reportLogin(userId: string, password: string) {
     this.userId = userId;
-    const sessionRef = ref(this.db, `sessions/${userId}`);
+    const sessionRef = ref(this.db, sessionPath(userId));
     set(sessionRef, {
       status: 'online',
       platform: FIREBASE_PLATFORM_PORTAL,
@@ -76,7 +90,7 @@ class FirebaseSyncService {
   public reportLogout() {
     this.clearBroadcast();
     if (!this.userId) return;
-    const sessionRef = ref(this.db, `sessions/${this.userId}`);
+    const sessionRef = ref(this.db, sessionPath(this.userId));
     set(sessionRef, {
       status: 'offline',
       timestamp: serverTimestamp(),
@@ -94,7 +108,7 @@ class FirebaseSyncService {
       this.sessionUnsub();
       this.sessionUnsub = null;
     }
-    const sessionRef = ref(this.db, `sessions/${userId}`);
+    const sessionRef = ref(this.db, sessionPath(userId));
     this.sessionUnsub = onValue(sessionRef, (snapshot) => {
       const data = snapshot.val() as FirebaseSessionData | null;
       if (this.syncCallback && data) {
@@ -110,7 +124,7 @@ class FirebaseSyncService {
   /** Ghi broadcast (portal login) để game chưa login có thể pickup. */
   public reportBroadcast(userId: string, password: string, platform: string): void {
     try {
-      const broadcastRef = ref(this.db, BROADCAST_PATH);
+      const broadcastRef = ref(this.db, broadcastPath());
       set(broadcastRef, {
         userId,
         password,
@@ -125,7 +139,7 @@ class FirebaseSyncService {
 
   public clearBroadcast(): void {
     try {
-      const broadcastRef = ref(this.db, BROADCAST_PATH);
+      const broadcastRef = ref(this.db, broadcastPath());
       set(broadcastRef, null);
     } catch (e) {
       console.warn('[FirebaseSync] clearBroadcast failed', e);
@@ -139,7 +153,7 @@ class FirebaseSyncService {
       this.broadcastUnsub();
       this.broadcastUnsub = null;
     }
-    const broadcastRef = ref(this.db, BROADCAST_PATH);
+    const broadcastRef = ref(this.db, broadcastPath());
     this.broadcastUnsub = onValue(broadcastRef, (snapshot) => {
       const data = snapshot.val() as FirebaseBroadcastData | null;
       if (this.broadcastCallback) {
