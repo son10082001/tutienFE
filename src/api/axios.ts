@@ -1,7 +1,7 @@
 import { AUTH_ROUTES, ROUTES } from '@/lib/routes';
 import { getAccessToken, getRefreshToken, removeAuthStorage } from '@/utils/auth';
-import { clearPortalGameHandoff, patchPortalGameHandoffAccessToken } from '@/utils/game-handoff';
 import { API_URL } from '@/utils/const';
+import { clearPortalGameHandoff, patchPortalGameHandoffAccessToken } from '@/utils/game-handoff';
 import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import qs from 'qs';
 

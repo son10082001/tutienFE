@@ -1,14 +1,14 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.1.10:4000/api';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http:/localhost:4000/api';
 
 export const GAME_LAUNCH_URL =
-  process.env.NEXT_PUBLIC_GAME_URL || 'http://192.168.56.1:7456/web-mobile/web-mobile/index.html';
+  process.env.NEXT_PUBLIC_GAME_URL || 'http://172.20.10.2:7456/web-mobile/web-mobile/index.html';
 
 /**
  * URL WebSocket đồng bộ phiên (dùng khi SYNC_MODE === 'websocket').
  * Trỏ tới endpoint `attachSessionSyncWs` gắn trên tutien-be.
  */
 export const WS_URL =
-  process.env.NEXT_PUBLIC_WS_URL || 'ws://192.168.1.10:4000/ws/session';
+  process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws/session';
 
 /**
  * Chế độ đồng bộ phiên portal ↔ game.

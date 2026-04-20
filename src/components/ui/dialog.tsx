@@ -47,7 +47,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          'fixed top-[50%] left-[50%] z-50 max-h-[90vh] w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] space-y-4 rounded-lg border bg-background shadow-lg',
+          'fixed top-[50%] left-[50%] z-50 max-h-[90vh] px-6 pb-6 w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] space-y-4 rounded-lg border bg-background shadow-lg',
           className
         )}
         {...props}
@@ -67,7 +67,7 @@ function DialogHeader({
     <div
       data-slot='dialog-header'
       className={cn(
-        'sticky top-0 z-10 flex items-start justify-between rounded-t-lg bg-white px-6 pt-6 text-center sm:text-left',
+        'sticky top-0 z-10 flex items-start justify-between rounded-t-lg pt-6 text-center sm:text-left',
         className
       )}
       {...props}
@@ -122,5 +122,6 @@ export {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 };
+

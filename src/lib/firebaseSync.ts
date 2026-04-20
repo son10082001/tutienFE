@@ -1,15 +1,15 @@
+import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
-  getDatabase,
-  ref,
-  onValue,
-  set,
-  serverTimestamp,
-  type Database,
-  type Unsubscribe,
+    getDatabase,
+    onValue,
+    ref,
+    serverTimestamp,
+    set,
+    type Database,
+    type Unsubscribe,
 } from 'firebase/database';
 import { firebaseConfig } from '../config/firebase';
-import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 
 const BROADCAST_PATH_SUFFIX = 'broadcast/latest_login';
 export const FIREBASE_PLATFORM_PORTAL = 'portal';
@@ -171,4 +171,4 @@ class FirebaseSyncService {
   }
 }
 
-export const firebaseSync = new FirebaseSyncService();
+// export const firebaseSync = new FirebaseSyncService();

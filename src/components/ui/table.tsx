@@ -14,7 +14,7 @@ type TableSkeletonProps = {
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (
-    <div data-slot='table-container' className='relative w-full overflow-x-auto rounded-md border border-gray-50'>
+    <div data-slot='table-container' className='relative w-full overflow-x-auto'>
       <table data-slot='table' className={cn('w-full caption-bottom text-sm', className)} {...props} />
     </div>
   );
@@ -43,7 +43,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot='table-row'
       className={cn(
-        'border-gray-50 border-b bg-white transition-colors hover:bg-gray-100 data-[state=selected]:bg-gray-200',
+        'border-b border-gray-100 bg-transparent transition-colors hover:bg-gray-50 data-[state=selected]:bg-gray-100',
         className
       )}
       {...props}
