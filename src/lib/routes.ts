@@ -5,6 +5,7 @@ export const ROUTES = {
   ADMIN_GIFT_CODE: '/admin/gift-code',
   ADMIN_DEPOSIT: '/admin/deposit',
   ADMIN_DEPOSIT_PROMOTION: '/admin/deposit-promotion',
+  ADMIN_SHOP: '/admin/shop',
   ADMIN_USERS: '/admin/users',
   PROFILE: '/profile',
   LOGIN: '/login',

@@ -4,15 +4,15 @@ import { useMe } from '@/api/auth';
 import { useUpdateProfile } from '@/api/user';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuthStore } from '@/stores/auth-store';
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { formatVnd, VIP_TIER_DESCRIPTIONS } from '@/lib/vip';
+import { useAuthStore } from '@/stores/auth-store';
+import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { Crown, Loader2, UserCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ROUTES } from '@/lib/routes';
-import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
 
 type TabId = 'profile' | 'password';
 
@@ -101,7 +101,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className='min-h-screen bg-black px-4 py-20'>
+    <div className='min-h-screen bg-black px-4 py-32'>
       <div className='mx-auto max-w-lg'>
         <div className='mb-8 text-center'>
           <div className='mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-[#44C8F3]/15'>

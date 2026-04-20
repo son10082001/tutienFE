@@ -277,7 +277,7 @@ export default function DepositPage() {
     onError: (err) => notifyErrorFromUnknown(err),
   });
 
-  const transferNote = activeDeposit?.note ?? '';
+const transferNote = (activeDeposit?.note ?? '').replace(/[+-]/g, '');
 
   function handleAmountInput(val: string) {
     const num = Number(val.replace(/\D/g, ''));
@@ -321,7 +321,7 @@ export default function DepositPage() {
   }
 
   return (
-    <div className='min-h-screen bg-black px-4 py-20'>
+    <div className='min-h-screen bg-black px-4 py-32'>
       <div className='mx-auto max-w-lg'>
         {/* Header */}
         <div className='mb-8 text-center'>

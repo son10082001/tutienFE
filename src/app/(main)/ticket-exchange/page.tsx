@@ -61,7 +61,7 @@ export default function TicketExchangePage() {
     onSuccess: (res) => {
       notifySuccess(
         'Đổi tiền sang phiếu thành công',
-        `Số dư còn ${res.balanceAfter.toLocaleString('vi-VN')}đ · Phiếu ${res.ticketBalanceAfter.toLocaleString('vi-VN')}`
+        `Vui lòng kiểm tra mail game để nhận phiếu`
       );
       queryClient.refetchQueries({ queryKey: useTicketExchangeMeta.getKey() });
       queryClient.refetchQueries({ queryKey: useMe.getKey() });
@@ -87,7 +87,7 @@ export default function TicketExchangePage() {
   }
 
   return (
-    <div className='min-h-screen bg-black px-4 py-20'>
+    <div className='min-h-screen bg-black px-4 py-32'>
       <div className='mx-auto max-w-lg space-y-5'>
         <div className='text-center'>
           <h1 className='font-bold text-3xl text-white'>Đổi phiếu</h1>

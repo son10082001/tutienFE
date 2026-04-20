@@ -4,7 +4,13 @@ import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 import { getAccessToken } from '@/utils/auth';
 import { API_URL } from '@/utils/const';
-import { clearPortalGameHandoff, ensurePortalGameHandoffForLaunch, savePortalGameLoginSession, setPortalGameHandoff } from '@/utils/game-handoff';
+import {
+  clearPortalGameHandoff,
+  ensurePortalGameHandoffForLaunch,
+  patchPortalGameHandoffAccessToken,
+  savePortalGameLoginSession,
+  setPortalGameHandoff,
+} from '@/utils/game-handoff';
 import { useEffect, useRef } from 'react';
 import { sessionSync } from '@/lib/sessionSync';
 import { signIn, type UserInfoResponse } from '@/api/auth';
@@ -12,6 +18,7 @@ import { notifySuccess } from '@/utils/notify';
 
 /** Khi session bị thu hồi trên BE (logout web/game), /auth/me trả 401. */
 const POLL_MS = 5000;
+const REFRESH_ENDPOINT = '/auth/refresh-token';
 
 /**
  * Poll /auth/me khi đã đăng nhập — không dùng postMessage/storage; game cũng poll tương tự.
@@ -106,6 +113,24 @@ export function usePortalSessionSync(enabled: boolean): void {
           credentials: 'include',
         });
         if (res.status === 401) {
+          // Access token có thể đã hết hạn: thử refresh trước, chỉ logout nếu refresh fail.
+          try {
+            const refreshRes = await fetch(`${base}${REFRESH_ENDPOINT}`, {
+              method: 'POST',
+              credentials: 'include',
+            });
+            if (refreshRes.ok) {
+              const data = (await refreshRes.json()) as { accessToken?: string };
+              if (data.accessToken) {
+                const { useAuthStore } = await import('@/stores/auth-store');
+                useAuthStore.getState().setToken(data.accessToken, '');
+                patchPortalGameHandoffAccessToken(data.accessToken);
+                return;
+              }
+            }
+          } catch {
+            // fallback logout phía dưới
+          }
           clearPortalGameHandoff();
           logout();
           if (typeof window !== 'undefined' && !window.location.pathname.startsWith(ROUTES.LOGIN)) {
