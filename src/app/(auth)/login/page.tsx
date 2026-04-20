@@ -15,7 +15,6 @@ import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -52,8 +51,6 @@ const LoginPage = () => {
       } as UserInfoResponse;
 
       login(data.accessToken, '', userInfo);
-
-      toast.success('Đăng nhập thành công.');
 
       if (data?.user?.role === 'ADMIN') {
         router.push(ROUTES.ADMIN_DASHBOARD);
@@ -105,7 +102,7 @@ const LoginPage = () => {
                   </div>
 
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
-                    TU TIÊN KIẾM HIỆP
+                    NGƯ TIÊN KÝ
                   </h2>
                 </div>
 

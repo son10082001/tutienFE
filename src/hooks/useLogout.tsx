@@ -5,7 +5,6 @@ import { clearPortalGameHandoff } from '@/utils/game-handoff';
 import { onMutateError } from '@/utils/common';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 
 export const useLogout = () => {
   const router = useRouter();
@@ -18,7 +17,6 @@ export const useLogout = () => {
     onSuccess: () => {
       clearPortalGameHandoff();
       logout();
-      toast.success('Đăng xuất thành công!');
       queryClient.clear();
       router.push(ROUTES.LOGIN);
     },

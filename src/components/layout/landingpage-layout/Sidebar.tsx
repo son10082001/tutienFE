@@ -27,6 +27,7 @@ const AUTH_LINKS = [
   { label: 'Cửa hàng', href: ROUTE.MARKET_PLACE },
   { label: 'Nạp tiền', href: ROUTE.DEPOSIT },
   { label: 'Gift Code', href: ROUTE.GIFT_CODE },
+  { label: 'Hồ sơ', href: ROUTE.PROFILE },
   { label: 'Chăm sóc khách hàng', href: ROUTE.SUPPORT },
 ];
 

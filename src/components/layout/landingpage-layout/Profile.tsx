@@ -6,17 +6,21 @@ import { Show } from '@/components/utilities';
 import { useLogout } from '@/hooks/useLogout';
 import { useAuthStore } from '@/stores/auth-store';
 import { ROUTE } from '@/types';
+import { getAccessToken } from '@/utils/auth';
 import { API_URL, GAME_LAUNCH_URL } from '@/utils/const';
 import {
   buildGameLaunchUrlWithHandoff,
   ensurePortalGameHandoffForLaunch,
   readPortalGameHandoff,
 } from '@/utils/game-handoff';
-import { getAccessToken } from '@/utils/auth';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { notifyError } from '@/utils/notify';
+
+function formatVND(n: number) {
+  return new Intl.NumberFormat('vi-VN').format(n) + 'đ';
+}
 
 const Profile = () => {
   const isLogin = useAuthStore((state) => state.isAuthenticated);
@@ -41,7 +45,15 @@ const Profile = () => {
         </Link>
       </Show>
       {isLogin && (
-        <p className='hidden max-w-[180px] truncate font-montserrat font-semibold text-sm text-white sm:block'>{user?.name || user?.userId}</p>
+        <div className='hidden items-center gap-2 sm:flex'>
+          <p className='max-w-[140px] truncate font-montserrat font-semibold text-sm text-white'>{user?.name || user?.userId}</p>
+          <div className='flex items-center gap-1 rounded-full border border-[#44C8F3]/30 bg-[#44C8F3]/10 px-2.5 py-1'>
+            <Wallet size={12} className='text-[#44C8F3]' />
+            <span className='font-mono text-xs font-semibold text-[#44C8F3]'>
+              {formatVND(user?.balance ?? 0)}
+            </span>
+          </div>
+        </div>
       )}
 
       <Show when={isLogin}>
@@ -55,8 +67,18 @@ const Profile = () => {
           <PopoverContent align='end' className='w-56 border-white/10 bg-[#141826] p-3 text-white'>
             <div className='mb-3 border-white/10 border-b pb-3'>
               <p className='truncate font-semibold text-sm'>{user?.name || user?.userId}</p>
-              <p className='mt-1 text-xs text-zinc-400'>Role: {user?.role || 'USER'}</p>
+              {/* <p className='mt-1 text-xs text-zinc-400'>Role: {user?.role || 'USER'}</p> */}
+              <div className='mt-2 flex items-center gap-1.5'>
+                <Wallet size={13} className='text-[#44C8F3]' />
+                <span className='font-mono text-sm font-bold text-[#44C8F3]'>{formatVND(user?.balance ?? 0)}</span>
+              </div>
             </div>
+            <Link
+              href={ROUTE.PROFILE}
+              className='mb-2 flex h-9 w-full items-center justify-center rounded-md border border-white/20 bg-white/5 text-sm font-medium text-white transition hover:bg-white/10'
+            >
+              Chỉnh sửa hồ sơ
+            </Link>
             {GAME_LAUNCH_URL ? (
               <Button
                 type='button'
@@ -68,18 +90,18 @@ const Profile = () => {
                       user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
                     const token = getAccessToken();
                     if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {
-                      toast.error('Chưa liên kết được phiên game với tài khoản web. Vui lòng đăng nhập lại.');
+                      notifyError('Không mở được game', 'Chưa liên kết phiên game với tài khoản web. Vui lòng đăng nhập lại.');
                       return;
                     }
                     const h = readPortalGameHandoff();
                     if (!h) {
-                      toast.error('Không mở được game. Vui lòng đăng nhập lại.');
+                      notifyError('Không mở được game', 'Vui lòng đăng nhập lại.');
                       return;
                     }
                     const url = buildGameLaunchUrlWithHandoff(GAME_LAUNCH_URL, h.userId, h.password, h.deviceGroupId);
                     window.open(url, '_blank');
                   } catch {
-                    toast.error('Không mở được game. Vui lòng đăng nhập lại.');
+                    notifyError('Không mở được game', 'Vui lòng đăng nhập lại.');
                   }
                 }}
               >

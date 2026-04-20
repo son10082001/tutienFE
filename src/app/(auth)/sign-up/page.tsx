@@ -8,16 +8,18 @@ import { ROUTES } from '@/lib/routes';
 import { onMutateError } from '@/utils/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Mail, User } from 'lucide-react';
+import { ArrowLeft, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z
   .object({
-    name: z.string().min(1, 'Vui lòng nhập tên hiển thị'),
-    email: z.string().email('Email không hợp lệ'),
+    userId: z
+      .string()
+      .trim()
+      .min(1, 'Vui lòng nhập tài khoản')
+      .max(128, 'Tài khoản tối đa 128 ký tự'),
     password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
     confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu'),
   })
@@ -35,8 +37,7 @@ export default function SignUpPage() {
     resolver: zodResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
-      email: '',
+      userId: '',
       password: '',
       confirmPassword: '',
     },
@@ -45,7 +46,6 @@ export default function SignUpPage() {
   const { mutate: registerMutation, isPending } = useMutation({
     mutationFn: registerAccount,
     onSuccess: () => {
-      toast.success('Đăng ký thành công, vui lòng đăng nhập.');
       router.push(ROUTES.LOGIN);
     },
     onError: onMutateError,
@@ -53,8 +53,7 @@ export default function SignUpPage() {
 
   const onSubmit = (data: FormData) => {
     registerMutation({
-      name: data.name,
-      email: data.email,
+      userId: data.userId.trim(),
       password: data.password,
     });
   };
@@ -91,7 +90,7 @@ export default function SignUpPage() {
                     🗡️
                   </div>
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
-                    TU TIÊN KIẾM HIỆP
+                  NGƯ TIÊN KÝ
                   </h2>
                 </div>
 
@@ -103,23 +102,11 @@ export default function SignUpPage() {
                 <div className='w-full space-y-5'>
                   <TextField
                     control={form.control}
-                    name='name'
-                    label='Tên hiển thị'
-                    placeholder='Nhập tên hiển thị'
+                    name='userId'
+                    label='Tài khoản'
+                    placeholder='Nhập tên đăng nhập'
                     required
                     preIcon={<User className='size-5' />}
-                    disabled={isPending}
-                    labelClassName='font-medium text-gray-300'
-                    className='h-12 rounded-lg border border-yellow-500/20 bg-black/40 text-white placeholder:text-gray-500 focus:border-yellow-400 focus:bg-black/60'
-                  />
-
-                  <TextField
-                    control={form.control}
-                    name='email'
-                    label='Email / Tài khoản'
-                    placeholder='Nhập email'
-                    required
-                    preIcon={<Mail className='size-5' />}
                     disabled={isPending}
                     labelClassName='font-medium text-gray-300'
                     className='h-12 rounded-lg border border-yellow-500/20 bg-black/40 text-white placeholder:text-gray-500 focus:border-yellow-400 focus:bg-black/60'

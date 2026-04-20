@@ -9,7 +9,7 @@ import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 import { API_URL } from '@/utils/const';
 import { ROUTES } from '@/lib/routes';
 import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
+import { notifySuccess } from '@/utils/notify';
 
 /**
  * Lắng nghe kênh broadcast Firebase ngay từ khi portal khởi động.
@@ -78,7 +78,7 @@ export function usePortalBroadcastSync(): void {
         } as UserInfoResponse;
 
         useAuthStore.getState().login(loginData.accessToken, '', userInfo);
-        toast.success('Đồng bộ đăng nhập từ Game thành công.');
+        notifySuccess('Đồng bộ thành công', 'Đăng nhập từ Game đã được đồng bộ.');
         setTimeout(() => {
           if (typeof window !== 'undefined') {
             window.location.reload();

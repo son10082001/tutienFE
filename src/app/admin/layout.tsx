@@ -2,15 +2,18 @@
 
 import { useLogout } from '@/hooks/useLogout';
 import { ROUTES } from '@/lib/routes';
-import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
-import { Gift, LayoutDashboard, LogOut, Menu, X } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
+import { CreditCard, Gift, LayoutDashboard, LogOut, Menu, Percent, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
+  { label: 'Người dùng', href: ROUTES.ADMIN_USERS, icon: Users },
+  { label: 'Nạp tiền', href: ROUTES.ADMIN_DEPOSIT, icon: CreditCard },
+  { label: 'KM nạp tiền', href: ROUTES.ADMIN_DEPOSIT_PROMOTION, icon: Percent },
   { label: 'Gift Code', href: ROUTES.ADMIN_GIFT_CODE, icon: Gift },
 ];
 
@@ -29,7 +32,7 @@ function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: (
       {/* Header */}
       <div className='flex h-16 items-center justify-between border-b border-white/10 px-4'>
         {!collapsed && (
-          <span className='truncate font-bold text-sm tracking-wide text-white/90'>Tu Tiên Admin</span>
+          <span className='truncate font-bold text-sm tracking-wide text-white/90'>Ngư Tiên Ký Admin</span>
         )}
         <button
           type='button'

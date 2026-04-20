@@ -8,7 +8,7 @@ import { clearPortalGameHandoff, ensurePortalGameHandoffForLaunch, savePortalGam
 import { useEffect, useRef } from 'react';
 import { sessionSync } from '@/lib/sessionSync';
 import { signIn, type UserInfoResponse } from '@/api/auth';
-import { toast } from 'sonner';
+import { notifySuccess } from '@/utils/notify';
 
 /** Khi session bị thu hồi trên BE (logout web/game), /auth/me trả 401. */
 const POLL_MS = 5000;
@@ -85,7 +85,7 @@ export function usePortalSessionSync(enabled: boolean): void {
             } as UserInfoResponse;
 
             useAuthStore.getState().login(loginData.accessToken, '', userInfo);
-            toast.success('Đồng bộ đăng nhập từ Game thành công.');
+            notifySuccess('Đồng bộ thành công', 'Đăng nhập từ Game đã được đồng bộ.');
             window.location.reload();
           } catch (error) {
             console.error('[FirebaseSync] Failed to auto-login portal:', error);

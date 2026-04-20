@@ -23,17 +23,22 @@ export interface ITokens {
 export interface UserInfoResponse {
   id: string | number;
   userId?: string;
-  email?: string;
+  email?: string | null;
+  phone?: string | null;
   name?: string;
   role: string;
   type?: number;
   balance?: number;
+  /** Hạng VIP theo tổng nạp duyệt (đồng bộ backend) */
+  vipLevel?: number;
+  vipLabel?: string;
+  nextVipLevel?: number | null;
+  amountToNextVip?: number | null;
   kycStatus?: 'none' | 'pending' | 'approved' | 'rejected';
 }
 
 export interface RegisterAccountRequest {
-  name: string;
-  email: string;
+  userId: string;
   password: string;
   referredBy?: string;
 }

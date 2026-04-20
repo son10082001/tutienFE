@@ -1,12 +1,11 @@
 'use client';
 
-import { Icons } from '@/assets/icons';
+import { MessagePopupHost } from '@/components/ui/message-popup-host';
 import { PortalGameSessionBridge } from '@/components/PortalGameSessionBridge';
 import { HeroUIProvider } from '@heroui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import { type ReactNode, useEffect, useState } from 'react';
-import { Toaster } from 'sonner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,22 +34,7 @@ function Providers({ children }: ProvidersProps) {
       <HeroUIProvider>
         <QueryClientProvider client={queryClient}>
           <PortalGameSessionBridge />
-          <Toaster
-            position='bottom-right'
-            closeButton
-            toastOptions={{
-              classNames: {
-                icon: '!w-[38px] !h-[38px]',
-                title: '!text-base',
-                toast: 'toast',
-                closeButton: '!top-1 !right-2 !left-auto !transform-none !bg-transparent !text-white !border-none',
-              },
-            }}
-            icons={{
-              success: <Icons.success_circle />,
-              error: <Icons.error_circle />,
-            }}
-          />
+          <MessagePopupHost />
           <>{isMounted ? children : <></>}</>
         </QueryClientProvider>
       </HeroUIProvider>

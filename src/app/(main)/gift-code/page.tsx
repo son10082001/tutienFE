@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, ChevronDown, Gift, Loader2, Package, Server, Sparkles } from 'lucide-react';
 import { useState } from 'react';
@@ -142,7 +142,7 @@ export default function GiftCodePage() {
             <Gift size={28} className='text-[#44C8F3]' />
           </div>
           <h1 className='font-bold text-2xl text-white'>Nhập Gift Code</h1>
-          <p className='mt-2 text-sm text-white/50'>Nhập mã quà tặng để nhận vật phẩm trong game Tu Tiên</p>
+          <p className='mt-2 text-sm text-white/50'>Nhập mã quà tặng để nhận vật phẩm trong game Ngư Tiên Ký</p>
         </div>
 
         {/* Form card */}
