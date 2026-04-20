@@ -29,6 +29,7 @@ export interface UserInfoResponse {
   role: string;
   type?: number;
   balance?: number;
+  ticketBalance?: number;
   /** Hạng VIP theo tổng nạp duyệt (đồng bộ backend) */
   vipLevel?: number;
   vipLabel?: string;

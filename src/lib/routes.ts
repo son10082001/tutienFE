@@ -12,6 +12,7 @@ export const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   ORDER: '/order',
   DEPOSIT: '/deposit',
+  TICKET_EXCHANGE: '/ticket-exchange',
   GIFT_CODE: '/gift-code',
 };
 

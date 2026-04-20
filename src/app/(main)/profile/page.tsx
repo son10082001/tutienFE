@@ -238,13 +238,21 @@ export default function ProfilePage() {
                   </Button>
                 </>
               ) : (
-                <Button
-                  type='button'
-                  onClick={startEdit}
-                  className='h-11 rounded-xl bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'
-                >
-                  Chỉnh sửa hồ sơ
-                </Button>
+                <>
+                  <Link
+                    href={ROUTES.TICKET_EXCHANGE}
+                    className='flex h-11 items-center justify-center rounded-xl border border-[#44C8F3]/40 px-4 text-sm font-medium text-[#44C8F3] transition hover:bg-[#44C8F3]/10'
+                  >
+                    Đổi phiếu
+                  </Link>
+                  <Button
+                    type='button'
+                    onClick={startEdit}
+                    className='h-11 rounded-xl bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'
+                  >
+                    Chỉnh sửa hồ sơ
+                  </Button>
+                </>
               )}
             </div>
           </div>

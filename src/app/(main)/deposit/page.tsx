@@ -441,7 +441,7 @@ export default function DepositPage() {
                 <div className='rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm'>
                   {activePromo && previewBonus > 0 ? (
                     <>
-                      <p className='text-white/55'>Thực nhận khi admin duyệt</p>
+                      <p className='text-white/55'>Thực nhận</p>
                       <p className='font-bold text-lg text-[#44C8F3]'>{formatVND(amount + previewBonus)}</p>
                       <p className='text-xs text-white/40'>
                         Gồm chuyển {formatVND(amount)} + thưởng {activePromo.percent}% (

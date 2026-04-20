@@ -24,6 +24,7 @@ export const ROUTE = {
   MY_ACTIVITY: '/profile?tab=activity',
   AUTH: '/auth',
   DEPOSIT: '/deposit',
+  TICKET_EXCHANGE: '/ticket-exchange',
   GIFT_CODE: '/gift-code',
   ADMIN_GIFT_CODE: '/admin/gift-code',
 } as const;
