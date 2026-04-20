@@ -18,6 +18,8 @@ const queryClient = new QueryClient({
   },
 });
 
+import { Toaster } from 'sonner';
+
 export interface ProvidersProps {
   children: ReactNode;
 }
@@ -36,6 +38,15 @@ function Providers({ children }: ProvidersProps) {
           <PortalGameSessionBridge />
           <MessagePopupHost />
           <>{isMounted ? children : <></>}</>
+          <Toaster 
+            position="top-right" 
+            richColors 
+            expand={false} 
+            theme="dark"
+            toastOptions={{
+              className: 'border-white/10 bg-[#0C111D] text-white',
+            }}
+          />
         </QueryClientProvider>
       </HeroUIProvider>
       <ProgressBar height='4px' color='#fffd00' options={{ showSpinner: false }} shallowRouting />

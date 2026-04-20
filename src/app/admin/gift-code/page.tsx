@@ -1,139 +1,124 @@
 'use client';
 
+import { useCreateGiftCodesMutation, useGiftCodeBatches, useGiftCodeItems } from '@/api/gift-code/queries';
+import { getGiftCodeBatchCodes } from '@/api/gift-code/requests';
+import { useTicketExchangeMeta } from '@/api/ticket-exchange/queries';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { Calendar, Edit2, Gift, Globe, Package, Plus, RefreshCw, Search, Server, Trash2, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Calendar, Check, Copy, Gift, Loader2, Package, Plus, Search, Sparkles, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ALL_SERVERS = 'all';
 
-const SERVER_OPTIONS = [
-  { value: ALL_SERVERS, label: 'Toàn server' },
-  { value: 'sv1', label: 'Server 1' },
-  { value: 'sv2', label: 'Server 2' },
-  { value: 'sv3', label: 'Server 3' },
-];
-
-function serverLabel(value: string) {
-  return SERVER_OPTIONS.find((s) => s.value === value)?.label ?? value;
-}
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface RewardItem {
-  id: string;
+  id: string; // Internal React ID
+  gameItemId: string; // Actual Game Item ID
   name: string;
   quantity: number;
 }
 
-interface GiftCode {
-  id: string;
-  code: string;
-  server: string;
-  expiresAt: string;
-  usageLimit: number;
-  usedCount: number;
-  rewards: RewardItem[];
-  createdAt: string;
-  status: 'active' | 'expired' | 'disabled';
+interface BatchInfo {
+  id: number;
+  name: string;
+  expiryDate: string;
+  channel: string;
 }
 
-// ─── Fake data ─────────────────────────────────────────────────────────────────
+interface GameItem {
+  id: string;
+  name: string;
+}
 
-const FAKE_CODES: GiftCode[] = [
-  {
-    id: '1',
-    code: 'TUTIEN2025',
-    server: ALL_SERVERS,
-    expiresAt: '2025-12-31T23:59:59',
-    usageLimit: 1000,
-    usedCount: 234,
-    rewards: [
-      { id: 'r1', name: 'Kim nguyên bảo', quantity: 500 },
-      { id: 'r2', name: 'Linh thạch', quantity: 100 },
-    ],
-    createdAt: '2025-01-01',
-    status: 'active',
-  },
-  {
-    id: '2',
-    code: 'NEWSERVER',
-    server: 'sv1',
-    expiresAt: '2025-06-30T23:59:59',
-    usageLimit: 500,
-    usedCount: 500,
-    rewards: [{ id: 'r3', name: 'Huyền thiết kiếm', quantity: 1 }],
-    createdAt: '2025-01-15',
-    status: 'expired',
-  },
-  {
-    id: '3',
-    code: 'VIPGIFT',
-    server: 'sv2',
-    expiresAt: '2026-03-01T23:59:59',
-    usageLimit: 100,
-    usedCount: 12,
-    rewards: [
-      { id: 'r4', name: 'Kim nguyên bảo', quantity: 2000 },
-      { id: 'r5', name: 'Đan dược thượng phẩm', quantity: 10 },
-      { id: 'r6', name: 'Linh thạch', quantity: 500 },
-    ],
-    createdAt: '2025-02-01',
-    status: 'active',
-  },
-];
+// ─── Item Selector ─────────────────────────────────────────────────────────────
+
+function ItemSelector({
+  value,
+  onSelect,
+  items,
+}: {
+  value: string;
+  onSelect: (item: GameItem) => void;
+  items: GameItem[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const s = search.toLowerCase().trim();
+    if (!s) return items.slice(0, 50);
+    return items.filter((it) => it.name.toLowerCase().includes(s) || it.id.includes(s)).slice(0, 50);
+  }, [items, search]);
+
+  const selectedItem = items.find((it) => it.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type='button'
+          className={cn(
+            'flex h-9 w-32 items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white',
+            'hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-[#44C8F3]/50'
+          )}
+        >
+          <span className='truncate'>{selectedItem ? selectedItem.name : value || 'Chọn vật phẩm'}</span>
+          <Search size={14} className='ml-2 shrink-0 opacity-50' />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className='w-64 border-white/10 bg-[#0C111D] p-0 text-white' align='start'>
+        <div className='flex items-center border-b border-white/10 p-2'>
+          <Search size={14} className='mr-2 text-white/30' />
+          <input
+            className='flex-1 bg-transparent text-sm focus:outline-none'
+            placeholder='Tìm theo tên hoặc ID...'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+        </div>
+        <div className='max-h-60 overflow-y-auto p-1'>
+          {filtered.length === 0 && <div className='py-4 text-center text-xs text-white/30'>Không tìm thấy vật phẩm</div>}
+          {filtered.map((it) => (
+            <button
+              key={it.id}
+              type='button'
+              onClick={() => {
+                onSelect(it);
+                setOpen(false);
+                setSearch('');
+              }}
+              className={cn(
+                'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-[#44C8F3]/10',
+                it.id === value && 'bg-[#44C8F3]/20 text-[#44C8F3]'
+              )}
+            >
+              <div className='flex flex-col'>
+                <span className='font-medium'>{it.name}</span>
+                <span className='text-[10px] opacity-40'>ID: {it.id}</span>
+              </div>
+              {it.id === value && <Check size={14} />}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-function randomCode(len = 10) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-const STATUS_MAP: Record<GiftCode['status'], { label: string; className: string }> = {
-  active: { label: 'Hoạt động', className: 'bg-green-500/15 text-green-400' },
-  expired: { label: 'Hết hạn', className: 'bg-red-500/15 text-red-400' },
-  disabled: { label: 'Tắt', className: 'bg-white/10 text-white/40' },
-};
-
-// ─── Server select ─────────────────────────────────────────────────────────────
-
-function ServerSelect({
-  value,
-  onChange,
-  className,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-  className?: string;
-}) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={cn(
-        'flex h-9 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white',
-        'focus:outline-none focus:ring-1 focus:ring-[#44C8F3]/50',
-        '[&>option]:bg-[#0C111D] [&>option]:text-white',
-        className
-      )}
-    >
-      {SERVER_OPTIONS.map((s) => (
-        <option key={s.value} value={s.value}>
-          {s.label}
-        </option>
-      ))}
-    </select>
-  );
 }
 
 // ─── Reward item row ────────────────────────────────────────────────────────────
@@ -142,15 +127,25 @@ function RewardRow({
   item,
   onChange,
   onRemove,
+  items,
 }: {
   item: RewardItem;
   onChange: (field: keyof RewardItem, value: string | number) => void;
   onRemove: () => void;
+  items: GameItem[];
 }) {
   return (
     <div className='flex items-center gap-2'>
+      <ItemSelector
+        value={item.gameItemId}
+        items={items}
+        onSelect={(it) => {
+          onChange('gameItemId', it.id);
+          onChange('name', it.name);
+        }}
+      />
       <Input
-        placeholder='Tên vật phẩm'
+        placeholder='Ghi chú'
         value={item.name}
         onChange={(e) => onChange('name', e.target.value)}
         className='flex-1 border-white/10 bg-white/5 text-white placeholder:text-white/30'
@@ -161,7 +156,7 @@ function RewardRow({
         min={1}
         value={item.quantity}
         onChange={(e) => onChange('quantity', Number(e.target.value))}
-        className='w-24 border-white/10 bg-white/5 text-white placeholder:text-white/30'
+        className='w-20 border-white/10 bg-white/5 text-white placeholder:text-white/30'
       />
       <button
         type='button'
@@ -177,53 +172,106 @@ function RewardRow({
 // ─── Form state ─────────────────────────────────────────────────────────────────
 
 interface FormState {
-  code: string;
-  server: string;
-  expiresAt: string;
-  usageLimit: number;
+  name: string;
+  channel: string;
+  generateCount: number;
+  expiryDate: string;
+  bonusesStr: string;
+  vipLevel: number;
+  useType: string;
   rewards: RewardItem[];
 }
 
 const emptyForm = (): FormState => ({
-  code: '',
-  server: ALL_SERVERS,
-  expiresAt: '',
-  usageLimit: 100,
-  rewards: [{ id: crypto.randomUUID(), name: '', quantity: 1 }],
+  name: '',
+  channel: 'all',
+  generateCount: 1,
+  expiryDate: '',
+  bonusesStr: '',
+  vipLevel: 0,
+  useType: '0',
+  rewards: [{ id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }],
 });
 
-function fromGiftCode(g: GiftCode): FormState {
-  return {
-    code: g.code,
-    server: g.server,
-    expiresAt: g.expiresAt.slice(0, 16),
-    usageLimit: g.usageLimit,
-    rewards: g.rewards.map((r) => ({ ...r })),
-  };
-}
+// ─── Batch codes dialog ─────────────────────────────────────────────────────────
 
-// ─── Gift Code Form Dialog ──────────────────────────────────────────────────────
-
-function GiftCodeFormDialog({
-  open,
-  editing,
-  onClose,
-  onSave,
-}: {
-  open: boolean;
-  editing: GiftCode | null;
-  onClose: () => void;
-  onSave: (form: FormState) => void;
-}) {
-  const [form, setForm] = useState<FormState>(emptyForm);
-  const prevOpen = useRef(open);
+function BatchCodesDialog({ batch, onClose }: { batch: BatchInfo | null; onClose: () => void }) {
+  const [codes, setCodes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (open && !prevOpen.current) {
-      setForm(editing ? fromGiftCode(editing) : emptyForm());
+    if (batch) {
+      setLoading(true);
+      getGiftCodeBatchCodes(batch.id)
+        .then(setCodes)
+        .finally(() => setLoading(false));
+    } else {
+      setCodes([]);
     }
-    prevOpen.current = open;
-  }, [open, editing]);
+  }, [batch]);
+
+  const handleCopy = () => {
+    if (!codes.length) return;
+    navigator.clipboard.writeText(codes.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success('Đã sao chép danh sách mã');
+  };
+
+  return (
+    <Dialog open={!!batch} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className='max-h-[80vh] border-white/10 bg-[#0C111D] text-white sm:max-w-md'>
+        <DialogHeader>
+          <DialogTitle className='text-white'>Mã đã tạo: {batch?.name}</DialogTitle>
+        </DialogHeader>
+        <div className='mt-4 space-y-4'>
+          <div className='max-h-60 min-h-32 overflow-y-auto rounded-lg border border-white/10 bg-black/40 p-4'>
+            {loading ? (
+              <div className='flex h-full items-center justify-center py-10'>
+                <Loader2 className='animate-spin text-[#44C8F3]' />
+              </div>
+            ) : (
+              <pre className='font-mono text-sm text-[#44C8F3]'>
+                {codes.join('\n')}
+              </pre>
+            )}
+          </div>
+          <Button 
+            onClick={handleCopy} 
+            disabled={loading || !codes.length}
+            className='w-full gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
+          >
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            Sao chép tất cả
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Main page ─────────────────────────────────────────────────────────────────
+
+export default function AdminGiftCodePage() {
+  const [formOpen, setFormOpen] = useState(false);
+  const [form, setForm] = useState<FormState>(emptyForm());
+  const [selectedBatch, setSelectedBatch] = useState<BatchInfo | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const { data: gameItems = [] } = useGiftCodeItems();
+  const { data: batches = [], refetch: refetchBatches } = useGiftCodeBatches();
+  const { data: meta } = useTicketExchangeMeta();
+  const createMutation = useCreateGiftCodesMutation();
+
+  const filteredBatches = useMemo(() => {
+    if (!searchTerm.trim()) return batches;
+    const s = searchTerm.toLowerCase().trim();
+    return batches.filter((b: any) => 
+      b.name.toLowerCase().includes(s) || 
+      b.id.toString().includes(s)
+    );
+  }, [batches, searchTerm]);
 
   function setField<K extends keyof FormState>(key: K, val: FormState[K]) {
     setForm((p) => ({ ...p, [key]: val }));
@@ -232,7 +280,7 @@ function GiftCodeFormDialog({
   function addReward() {
     setForm((p) => ({
       ...p,
-      rewards: [...p.rewards, { id: crypto.randomUUID(), name: '', quantity: 1 }],
+      rewards: [...p.rewards, { id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }],
     }));
   }
 
@@ -247,232 +295,37 @@ function GiftCodeFormDialog({
     setForm((p) => ({ ...p, rewards: p.rewards.filter((r) => r.id !== id) }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    onSave(form);
-  }
+    
+    const bonusesStr = form.rewards
+      .filter(r => r.gameItemId && r.quantity > 0)
+      .map(r => `2:1:${r.gameItemId},${r.quantity},0,0`)
+      .join(';');
 
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className='max-h-[90vh] overflow-y-auto border-white/10 bg-[#0C111D] text-white sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle className='text-white'>
-            {editing ? 'Chỉnh sửa Gift Code' : 'Tạo Gift Code mới'}
-          </DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className='mt-2 space-y-5'>
-          {/* Code */}
-          <div className='space-y-1.5'>
-            <label className='text-sm font-medium text-white/70'>Mã code</label>
-            <div className='flex gap-2'>
-              <Input
-                required
-                value={form.code}
-                onChange={(e) => setField('code', e.target.value.toUpperCase())}
-                placeholder='VD: TUTIEN2025'
-                className='flex-1 border-white/10 bg-white/5 text-white placeholder:text-white/30'
-              />
-              <Button
-                type='button'
-                variant='outline'
-                size='icon'
-                className='shrink-0 border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
-                onClick={() => setField('code', randomCode())}
-              >
-                <RefreshCw size={15} />
-              </Button>
-            </div>
-          </div>
-
-          {/* Server */}
-          <div className='space-y-1.5'>
-            <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
-              <Server size={14} />
-              Server áp dụng
-            </label>
-            <ServerSelect value={form.server} onChange={(v) => setField('server', v)} />
-            {form.server === ALL_SERVERS && (
-              <p className='text-xs text-white/30'>Mã này có thể dùng trên tất cả các server</p>
-            )}
-          </div>
-
-          {/* Expiry */}
-          <div className='space-y-1.5'>
-            <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
-              <Calendar size={14} />
-              Ngày hết hạn
-            </label>
-            <Input
-              required
-              type='datetime-local'
-              value={form.expiresAt}
-              onChange={(e) => setField('expiresAt', e.target.value)}
-              className='border-white/10 bg-white/5 text-white [color-scheme:dark]'
-            />
-          </div>
-
-          {/* Usage limit */}
-          <div className='space-y-1.5'>
-            <label className='text-sm font-medium text-white/70'>Giới hạn lượt dùng</label>
-            <Input
-              required
-              type='number'
-              min={1}
-              value={form.usageLimit}
-              onChange={(e) => setField('usageLimit', Number(e.target.value))}
-              className='border-white/10 bg-white/5 text-white'
-            />
-          </div>
-
-          {/* Rewards */}
-          <div className='space-y-2'>
-            <div className='flex items-center justify-between'>
-              <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
-                <Package size={14} />
-                Vật phẩm nhận thưởng
-              </label>
-              <Button
-                type='button'
-                size='sm'
-                variant='ghost'
-                onClick={addReward}
-                className='h-7 gap-1 px-2 text-[#44C8F3] hover:bg-[#44C8F3]/10 hover:text-[#44C8F3]'
-              >
-                <Plus size={13} /> Thêm
-              </Button>
-            </div>
-            <div className='space-y-2'>
-              {form.rewards.map((r) => (
-                <RewardRow
-                  key={r.id}
-                  item={r}
-                  onChange={(field, val) => updateReward(r.id, field, val)}
-                  onRemove={() => removeReward(r.id)}
-                />
-              ))}
-            </div>
-            {form.rewards.length === 0 && (
-              <p className='py-2 text-center text-xs text-white/30'>Chưa có vật phẩm nào</p>
-            )}
-          </div>
-
-          <div className='flex justify-end gap-3 pt-2'>
-            <Button
-              type='button'
-              variant='ghost'
-              onClick={onClose}
-              className='text-white/60 hover:bg-white/10 hover:text-white'
-            >
-              Huỷ
-            </Button>
-            <Button type='submit' className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'>
-              {editing ? 'Lưu thay đổi' : 'Tạo mã'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ─── Delete confirm dialog ──────────────────────────────────────────────────────
-
-function DeleteDialog({
-  code,
-  onClose,
-  onConfirm,
-}: {
-  code: GiftCode | null;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <Dialog open={!!code} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className='border-white/10 bg-[#0C111D] text-white sm:max-w-sm'>
-        <DialogHeader>
-          <DialogTitle className='text-white'>Xác nhận xoá</DialogTitle>
-        </DialogHeader>
-        <p className='mt-2 text-sm text-white/60'>
-          Bạn có chắc muốn xoá gift code{' '}
-          <span className='font-semibold text-white'>{code?.code}</span>? Hành động này không thể hoàn tác.
-        </p>
-        <div className='mt-4 flex justify-end gap-3'>
-          <Button variant='ghost' onClick={onClose} className='text-white/60 hover:bg-white/10 hover:text-white'>
-            Huỷ
-          </Button>
-          <Button onClick={onConfirm} className='bg-red-500 font-semibold text-white hover:bg-red-600'>
-            Xoá
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ─── Main page ─────────────────────────────────────────────────────────────────
-
-export default function AdminGiftCodePage() {
-  const [codes, setCodes] = useState<GiftCode[]>(FAKE_CODES);
-  const [search, setSearch] = useState('');
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<GiftCode | null>(null);
-  const [deleting, setDeleting] = useState<GiftCode | null>(null);
-
-  const filtered = codes.filter((c) => c.code.toLowerCase().includes(search.toLowerCase()));
-
-  function openCreate() {
-    setEditing(null);
-    setFormOpen(true);
-  }
-
-  function openEdit(code: GiftCode) {
-    setEditing(code);
-    setFormOpen(true);
-  }
-
-  function handleSave(form: FormState) {
-    if (editing) {
-      setCodes((prev) =>
-        prev.map((c) =>
-          c.id === editing.id
-            ? {
-                ...c,
-                code: form.code,
-                server: form.server,
-                expiresAt: form.expiresAt,
-                usageLimit: form.usageLimit,
-                rewards: form.rewards,
-              }
-            : c
-        )
-      );
-    } else {
-      const now = new Date().toISOString().slice(0, 10);
-      const status: GiftCode['status'] = new Date(form.expiresAt) > new Date() ? 'active' : 'expired';
-      setCodes((prev) => [
-        {
-          id: crypto.randomUUID(),
-          code: form.code,
-          server: form.server,
-          expiresAt: form.expiresAt,
-          usageLimit: form.usageLimit,
-          usedCount: 0,
-          rewards: form.rewards,
-          createdAt: now,
-          status,
-        },
-        ...prev,
-      ]);
+    if (!bonusesStr) {
+      toast.error('Vui lòng chọn ít nhất một vật phẩm hợp lệ');
+      return;
     }
-    setFormOpen(false);
-    setEditing(null);
-  }
 
-  function handleDelete() {
-    if (!deleting) return;
-    setCodes((prev) => prev.filter((c) => c.id !== deleting.id));
-    setDeleting(null);
+    try {
+      await createMutation.mutateAsync({
+        name: form.name,
+        channel: form.channel,
+        generateCount: form.generateCount,
+        expiryDate: form.expiryDate,
+        bonusesStr,
+        vipLevel: form.vipLevel,
+        useType: form.useType,
+      });
+
+      await refetchBatches();
+      setFormOpen(false);
+      setForm(emptyForm());
+      toast.success(`Đã tạo thành công đợt mã mới`);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Lỗi khi tạo mã');
+    }
   }
 
   return (
@@ -480,123 +333,62 @@ export default function AdminGiftCodePage() {
       <div className='flex items-center justify-between'>
         <div>
           <h1 className='font-bold text-2xl text-white'>Gift Code</h1>
-          <p className='mt-1 text-sm text-white/50'>Quản lý mã quà tặng trong game</p>
+          <p className='mt-1 text-sm text-white/50'>Quản lý đợt phát mã quà tặng</p>
         </div>
-        <Button onClick={openCreate} className='gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'>
-          <Plus size={16} />
-          Tạo mã mới
-        </Button>
+        <div className='flex items-center gap-3'>
+          <div className='relative w-64'>
+            <Search size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-white/30' />
+            <Input
+              placeholder='Tìm theo tên đợt...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='pl-10 border-white/10 bg-white/5'
+            />
+          </div>
+          <Button onClick={() => setFormOpen(true)} className='gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'>
+            <Plus size={16} />
+            Tạo đợt mã mới
+          </Button>
+        </div>
       </div>
 
-      <div className='relative max-w-xs'>
-        <Search size={15} className='absolute left-3 top-1/2 -translate-y-1/2 text-white/30' />
-        <Input
-          placeholder='Tìm mã code...'
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className='pl-9 border-white/10 bg-white/5 text-white placeholder:text-white/30'
-        />
-      </div>
-
+      {/* History Table */}
       <div className='overflow-hidden rounded-xl border border-white/10'>
         <Table>
           <TableHeader className='bg-white/5'>
             <TableRow className='border-white/10 bg-transparent hover:bg-transparent'>
-              <TableHead className='text-white/50'>Mã code</TableHead>
-              <TableHead className='text-white/50'>Server</TableHead>
-              <TableHead className='text-white/50'>Trạng thái</TableHead>
-              <TableHead className='text-white/50'>Hết hạn</TableHead>
-              <TableHead className='text-white/50'>Đã dùng / Giới hạn</TableHead>
-              <TableHead className='text-white/50'>Vật phẩm</TableHead>
+              <TableHead className='text-white/50 w-[100px]'>ID Đợt</TableHead>
+              <TableHead className='text-white/50'>Tên đợt phát</TableHead>
+              <TableHead className='text-white/50'>Ngày hết hạn</TableHead>
+              <TableHead className='text-white/50'>Kênh (Server)</TableHead>
               <TableHead className='text-right text-white/50'>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 && (
+            {filteredBatches.length === 0 && (
               <TableRow className='border-white/10 bg-transparent hover:bg-transparent'>
-                <TableCell colSpan={7} className='py-12 text-center text-white/30'>
-                  Không tìm thấy gift code nào
+                <TableCell colSpan={5} className='py-12 text-center text-white/30'>
+                  {searchTerm ? 'Không tìm thấy kết quả nào' : 'Chưa có lịch sử tạo mã'}
                 </TableCell>
               </TableRow>
             )}
-            {filtered.map((code) => (
-              <TableRow key={code.id} className='border-white/10 bg-transparent hover:bg-white/5'>
-                <TableCell className='text-white'>
-                  <div className='flex items-center gap-2'>
-                    <Gift size={14} className='text-[#44C8F3]' />
-                    <span className='font-mono font-semibold text-white'>{code.code}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className='flex items-center gap-1.5'>
-                    {code.server === ALL_SERVERS ? (
-                      <Globe size={13} className='text-white/40' />
-                    ) : (
-                      <Server size={13} className='text-white/40' />
-                    )}
-                    <span
-                      className={cn(
-                        'text-xs font-medium',
-                        code.server === ALL_SERVERS ? 'text-[#44C8F3]' : 'text-white/70'
-                      )}
-                    >
-                      {serverLabel(code.server)}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                      STATUS_MAP[code.status].className
-                    )}
-                  >
-                    {STATUS_MAP[code.status].label}
-                  </span>
-                </TableCell>
-                <TableCell className='text-white/70'>{formatDate(code.expiresAt)}</TableCell>
-                <TableCell>
-                  <div className='flex items-center gap-2'>
-                    <div className='h-1.5 w-24 rounded-full bg-white/10'>
-                      <div
-                        className='h-full rounded-full bg-[#44C8F3]'
-                        style={{ width: `${Math.min(100, (code.usedCount / code.usageLimit) * 100)}%` }}
-                      />
-                    </div>
-                    <span className='text-xs text-white/50'>
-                      {code.usedCount}/{code.usageLimit}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className='flex flex-wrap gap-1'>
-                    {code.rewards.map((r) => (
-                      <span
-                        key={r.id}
-                        className='inline-flex items-center rounded-md bg-white/10 px-2 py-0.5 text-xs text-white/70'
-                      >
-                        {r.name} ×{r.quantity}
-                      </span>
-                    ))}
-                  </div>
+            {filteredBatches.map((batch: any) => (
+              <TableRow key={batch.id} className='border-white/10 bg-transparent hover:bg-white/5'>
+                <TableCell className='font-mono text-xs text-white/50'>#{batch.id}</TableCell>
+                <TableCell className='font-medium text-white'>{batch.name}</TableCell>
+                <TableCell className='text-white/70'>{formatDate(batch.expiryDate)}</TableCell>
+                <TableCell className='text-white/70'>
+                  {batch.channel === 'all' ? 'Tất cả' : (meta?.servers?.find(s => s.id.toString() === batch.channel)?.name || batch.channel)}
                 </TableCell>
                 <TableCell className='text-right'>
-                  <div className='flex items-center justify-end gap-1'>
-                    <button
-                      type='button'
-                      onClick={() => openEdit(code)}
-                      className='flex h-8 w-8 items-center justify-center rounded-md text-white/50 hover:bg-white/10 hover:text-white'
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => setDeleting(code)}
-                      className='flex h-8 w-8 items-center justify-center rounded-md text-red-400/60 hover:bg-red-500/10 hover:text-red-400'
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => setSelectedBatch(batch)}
+                    className='text-[#44C8F3] hover:bg-[#44C8F3]/10'
+                  >
+                    Xem mã
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -604,13 +396,137 @@ export default function AdminGiftCodePage() {
         </Table>
       </div>
 
-      <GiftCodeFormDialog
-        open={formOpen}
-        editing={editing}
-        onClose={() => setFormOpen(false)}
-        onSave={handleSave}
-      />
-      <DeleteDialog code={deleting} onClose={() => setDeleting(null)} onConfirm={handleDelete} />
+      {/* Create Dialog */}
+      <Dialog open={formOpen} onOpenChange={(v) => !v && setFormOpen(false)}>
+        <DialogContent className='max-h-[90vh] overflow-y-auto border-white/10 bg-[#0C111D] text-white sm:max-w-lg'>
+          <DialogHeader>
+            <DialogTitle className='text-white'>Tạo đợt Gift Code mới</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleCreate} className='mt-2 space-y-5'>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1.5'>
+                <label className='text-sm font-medium text-white/70'>Tên đợt phát</label>
+                <Input
+                  required
+                  value={form.name}
+                  onChange={(e) => setField('name', e.target.value)}
+                  placeholder='VD: Quà Tân Thủ'
+                  className='border-white/10 bg-white/5 text-white'
+                />
+              </div>
+              <div className='space-y-1.5'>
+                <label className='text-sm font-medium text-white/70'>Kênh (Server)</label>
+                <Select value={form.channel} onValueChange={(val) => setField('channel', val)}>
+                  <SelectTrigger className='border-white/10 bg-white/5 text-white'>
+                    <SelectValue placeholder="Chọn server" />
+                  </SelectTrigger>
+                  <SelectContent className='bg-[#0C111D] border-white/10 text-white'>
+                    <SelectItem value="all">Toàn bộ server</SelectItem>
+                    {meta?.servers?.map((server) => (
+                      <SelectItem key={server.id} value={server.id.toString()}>
+                        {server.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1.5'>
+                <label className='text-sm font-medium text-white/70'>Số lượng mã cần tạo</label>
+                <Input
+                  required
+                  type='number'
+                  min={1}
+                  max={1000}
+                  value={form.generateCount}
+                  onChange={(e) => setField('generateCount', Number(e.target.value))}
+                  className='border-white/10 bg-white/5 text-white'
+                />
+              </div>
+              <div className='space-y-1.5'>
+                <label className='text-sm font-medium text-white/70'>Loại sử dụng</label>
+                <Select value={form.useType} onValueChange={(val) => setField('useType', val)}>
+                  <SelectTrigger className='border-white/10 bg-white/5 text-white'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className='bg-[#0C111D] border-white/10 text-white'>
+                    <SelectItem value='0'>Mỗi mã dùng 1 lần (Global)</SelectItem>
+                    <SelectItem value='1'>Mỗi nhân vật 1 mã / đợt</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className='space-y-1.5'>
+              <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
+                <Calendar size={14} />
+                Ngày hết hạn
+              </label>
+              <Input
+                required
+                type='datetime-local'
+                value={form.expiryDate}
+                onChange={(e) => setField('expiryDate', e.target.value)}
+                className='border-white/10 bg-white/5 text-white [color-scheme:dark]'
+              />
+            </div>
+
+            {/* Rewards */}
+            <div className='space-y-2'>
+              <div className='flex items-center justify-between'>
+                <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
+                  <Package size={14} />
+                  Vật phẩm nhận thưởng
+                </label>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='ghost'
+                  onClick={addReward}
+                  className='h-7 gap-1 px-2 text-[#44C8F3] hover:bg-[#44C8F3]/10'
+                >
+                  <Plus size={13} /> Thêm
+                </Button>
+              </div>
+              <div className='space-y-2'>
+                {form.rewards.map((r) => (
+                  <RewardRow
+                    key={r.id}
+                    item={r}
+                    onChange={(field, val) => updateReward(r.id, field, val)}
+                    onRemove={() => removeReward(r.id)}
+                    items={gameItems}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className='flex justify-end gap-3 pt-2'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={() => setFormOpen(false)}
+                className='text-white/60 hover:bg-white/10'
+              >
+                Huỷ
+              </Button>
+              <Button 
+                type='submit' 
+                disabled={createMutation.isPending}
+                className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
+              >
+                {createMutation.isPending ? <Loader2 size={16} className='mr-2 animate-spin' /> : <Gift size={16} className='mr-2' />}
+                Bắt đầu tạo mã
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <BatchCodesDialog batch={selectedBatch} onClose={() => setSelectedBatch(null)} />
     </div>
   );
 }
