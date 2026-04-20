@@ -4,7 +4,7 @@ import { useLogout } from '@/hooks/useLogout';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
-import { CreditCard, Gift, LayoutDashboard, LogOut, Menu, Percent, Users, X } from 'lucide-react';
+import { CreditCard, Gift, LayoutDashboard, LogOut, Menu, Percent, ShoppingBag, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { label: 'Người dùng', href: ROUTES.ADMIN_USERS, icon: Users },
   { label: 'Nạp tiền', href: ROUTES.ADMIN_DEPOSIT, icon: CreditCard },
   { label: 'KM nạp tiền', href: ROUTES.ADMIN_DEPOSIT_PROMOTION, icon: Percent },
+  { label: 'Shop', href: ROUTES.ADMIN_SHOP, icon: ShoppingBag },
   { label: 'Gift Code', href: ROUTES.ADMIN_GIFT_CODE, icon: Gift },
 ];
 
