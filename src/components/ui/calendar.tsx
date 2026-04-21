@@ -142,7 +142,7 @@ function CalendarDayButton({ className, day, modifiers, ...props }: React.Compon
     <Button
       ref={ref}
       variant='ghost'
-      size='xsmall'
+      size='md'
       data-day={day.date.toLocaleDateString()}
       data-selected-single={
         modifiers.selected && !modifiers.range_start && !modifiers.range_end && !modifiers.range_middle

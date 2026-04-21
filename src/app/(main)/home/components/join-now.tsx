@@ -70,7 +70,6 @@ const JoinNow = () => {
         >
           <span className='relative z-10'>Chơi ngay</span>
 
-          {/* glow effect */}
           <span className='absolute inset-0 rounded-xl bg-yellow-300 opacity-20 blur-md'></span>
         </button>
       </div>

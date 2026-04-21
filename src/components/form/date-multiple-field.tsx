@@ -80,7 +80,7 @@ const DateMultipleField = <T extends FieldValues>({
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
-                    variant='neutral-stroke'
+                    variant='default'
                     disabled={disabled}
                     className={cn(
                       '!rounded-6 relative h-10 w-full flex-nowrap items-start justify-start gap-1 text-left',

@@ -92,7 +92,7 @@ const DateField = <T extends FieldValues>({
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  variant='neutral-stroke'
+                  variant='default'
                   disabled={disabled}
                   className={cn(
                     'w-full justify-start text-left font-normal',
@@ -138,3 +138,4 @@ const DateField = <T extends FieldValues>({
 
 export { DateField };
 export type { DateFieldProps };
+

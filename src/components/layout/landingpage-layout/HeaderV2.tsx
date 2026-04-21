@@ -7,8 +7,8 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import MobileHeader from './MobileHeader';
+import Navbar from './Navbar';
 import Profile from './Profile';
-import Navbar from './navbar';
 
 interface HeaderProps {
   className?: string;

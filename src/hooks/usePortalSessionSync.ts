@@ -1,6 +1,8 @@
 'use client';
 
+import { signIn, type UserInfoResponse } from '@/api/auth';
 import { ROUTES } from '@/lib/routes';
+import { sessionSync } from '@/lib/sessionSync';
 import { useAuthStore } from '@/stores/auth-store';
 import { getAccessToken } from '@/utils/auth';
 import { API_URL } from '@/utils/const';
@@ -11,10 +13,8 @@ import {
   savePortalGameLoginSession,
   setPortalGameHandoff,
 } from '@/utils/game-handoff';
-import { useEffect, useRef } from 'react';
-import { sessionSync } from '@/lib/sessionSync';
-import { signIn, type UserInfoResponse } from '@/api/auth';
 import { notifySuccess } from '@/utils/notify';
+import { useEffect, useRef } from 'react';
 
 /** Khi session bị thu hồi trên BE (logout web/game), /auth/me trả 401. */
 const POLL_MS = 5000;
@@ -43,7 +43,7 @@ export function usePortalSessionSync(enabled: boolean): void {
       sessionSync.startListening(String(uid));
     }
 
-    sessionSync.setSyncCallback(async (data) => {
+    sessionSync.setSyncCallback(async (data:any) => {
       // 1. Handle Logout Signal
       // Chỉ coi là logout signal khi offline đến từ platform KHÁC (game).
       // Nếu offline có platform là 'portal' (hoặc chính mình vừa ghi) thì

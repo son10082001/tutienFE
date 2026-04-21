@@ -73,7 +73,7 @@ const Pagination = ({
         {paginationRange.map((pageNumber, i) =>
           pageNumber === DOTS ? (
             <Button
-              variant='neutral-stroke'
+              variant='default'
               className={cn('size-8', isWhite ? 'bg-bgc-white/20 text-tx-white backdrop-blur-[9px]' : '')}
               key={`dots-${i}`}
             >
@@ -82,7 +82,7 @@ const Pagination = ({
           ) : (
             <Button
               key={pageNumber}
-              variant={pageNumber === currentPage ? 'neutral-lighter' : 'neutral-stroke'}
+              variant={pageNumber === currentPage ? 'default' : 'default'}
               className={cn(
                 'typo-label-small size-8 rounded-8 text-tx-sub-600 hover:bg-bgc-weak-50 hover:text-tx-sub-600',
                 isWhite
