@@ -45,6 +45,22 @@ interface GameItem {
   name: string;
 }
 
+function safeRandomId(): string {
+  const c = globalThis.crypto;
+  if (c && typeof c.randomUUID === 'function') {
+    return c.randomUUID();
+  }
+  if (c && typeof c.getRandomValues === 'function') {
+    const bytes = new Uint8Array(16);
+    c.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 // ─── Item Selector ─────────────────────────────────────────────────────────────
 
 function ItemSelector({
@@ -199,7 +215,7 @@ const emptyForm = (): FormState => ({
   bonusesStr: '',
   vipLevel: 0,
   useType: '0',
-  rewards: [{ id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }],
+  rewards: [{ id: safeRandomId(), gameItemId: '', name: '', quantity: 1 }],
 });
 
 // ─── Batch codes dialog ─────────────────────────────────────────────────────────
@@ -298,7 +314,7 @@ export default function AdminGiftCodePage() {
   function addReward() {
     setForm((p) => ({
       ...p,
-      rewards: [...p.rewards, { id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }],
+      rewards: [...p.rewards, { id: safeRandomId(), gameItemId: '', name: '', quantity: 1 }],
     }));
   }
 
@@ -324,12 +340,12 @@ export default function AdminGiftCodePage() {
   function addEditReward() {
     setEditForm((p) => ({
       ...p,
-      rewards: [...p.rewards, { id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }],
+      rewards: [...p.rewards, { id: safeRandomId(), gameItemId: '', name: '', quantity: 1 }],
     }));
   }
 
   function randomGiftCodeName() {
-    const token = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase();
+    const token = safeRandomId().replace(/-/g, '').slice(0, 6).toUpperCase();
     setField('name', token);
   }
 
@@ -376,14 +392,14 @@ export default function AdminGiftCodePage() {
         if (!gameItemId) return null;
         const found = gameItems.find((it) => String(it.id) === String(gameItemId));
         return {
-          id: crypto.randomUUID(),
+          id: safeRandomId(),
           gameItemId: String(gameItemId),
           name: found?.name ?? String(gameItemId),
           quantity: Math.max(1, Number(qty || '1') || 1),
         } satisfies RewardItem;
       })
       .filter(Boolean) as RewardItem[];
-    return rewards.length > 0 ? rewards : [{ id: crypto.randomUUID(), gameItemId: '', name: '', quantity: 1 }];
+    return rewards.length > 0 ? rewards : [{ id: safeRandomId(), gameItemId: '', name: '', quantity: 1 }];
   }
 
   function openEdit(batch: any) {
