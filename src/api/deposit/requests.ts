@@ -30,9 +30,7 @@ export const adminListDepositPromotions = async (): Promise<DepositPromotionList
   return res.data;
 };
 
-export const adminCreateDepositPromotion = async (
-  data: CreateDepositPromotionInput
-): Promise<DepositPromotionRow> => {
+export const adminCreateDepositPromotion = async (data: CreateDepositPromotionInput): Promise<DepositPromotionRow> => {
   const res = await axiosInstance.post<DepositPromotionRow>('/admin/deposit-promotions', data);
   return res.data;
 };
@@ -48,11 +46,7 @@ export const adminPatchDepositPromotion = async (
   return res.data;
 };
 
-export const adminGetAllDeposits = async (
-  page = 1,
-  limit = 10,
-  status?: string
-): Promise<DepositListResponse> => {
+export const adminGetAllDeposits = async (page = 1, limit = 10, status?: string): Promise<DepositListResponse> => {
   const res = await axiosInstance.get('/admin/deposits', { params: { page, limit, status } });
   return res.data;
 };
@@ -67,10 +61,7 @@ export const adminRejectDeposit = async (id: string, adminNote?: string): Promis
   return res.data;
 };
 
-export const adminUpdateDeposit = async (
-  id: string,
-  data: UpdateDepositAdminInput
-): Promise<DepositRequest> => {
+export const adminUpdateDeposit = async (id: string, data: UpdateDepositAdminInput): Promise<DepositRequest> => {
   const res = await axiosInstance.patch(`/admin/deposits/${id}`, data);
   return res.data;
 };

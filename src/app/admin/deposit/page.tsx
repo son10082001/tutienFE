@@ -1,12 +1,7 @@
 'use client';
 
 import type { DepositRequest, DepositStatus, UpdateDepositAdminInput } from '@/api/deposit';
-import {
-  useAdminDeposits,
-  useApproveDeposit,
-  useRejectDeposit,
-  useUpdateDeposit,
-} from '@/api/deposit';
+import { useAdminDeposits, useApproveDeposit, useRejectDeposit, useUpdateDeposit } from '@/api/deposit';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -71,8 +66,11 @@ function formatVND(n: number) {
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -160,7 +158,10 @@ function EditDialog({
                 <option value='approved'>Đã duyệt</option>
                 <option value='rejected'>Từ chối</option>
               </select>
-              <ChevronDown size={15} className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40' />
+              <ChevronDown
+                size={15}
+                className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40'
+              />
             </div>
           </div>
 
@@ -352,8 +353,7 @@ export default function AdminDepositPage() {
   const filtered = search
     ? items.filter(
         (i) =>
-          i.userId.toLowerCase().includes(search.toLowerCase()) ||
-          i.note.toLowerCase().includes(search.toLowerCase())
+          i.userId.toLowerCase().includes(search.toLowerCase()) || i.note.toLowerCase().includes(search.toLowerCase())
       )
     : items;
 
@@ -379,7 +379,10 @@ export default function AdminDepositPage() {
             <button
               key={s}
               type='button'
-              onClick={() => { setStatusFilter(statusFilter === s ? '' : s); setPage(1); }}
+              onClick={() => {
+                setStatusFilter(statusFilter === s ? '' : s);
+                setPage(1);
+              }}
               className={cn(
                 'rounded-full px-3 py-1 text-xs font-medium transition-all',
                 statusFilter === s ? cfg.className : 'bg-white/5 text-white/40 hover:bg-white/10'
@@ -444,7 +447,12 @@ export default function AdminDepositPage() {
                   <TableCell className='text-white/70'>{METHOD_LABEL[item.method] ?? item.method}</TableCell>
                   {/* <TableCell className='text-white/70'>{SERVER_LABEL[item.server] ?? item.server}</TableCell> */}
                   <TableCell>
-                    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium', cfg.className)}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        cfg.className
+                      )}
+                    >
                       {item.status === 'pending' && <Clock size={11} />}
                       {item.status === 'approved' && <CheckCircle2 size={11} />}
                       {item.status === 'rejected' && <XCircle size={11} />}
@@ -454,7 +462,9 @@ export default function AdminDepositPage() {
                       <p className='mt-0.5 text-xs text-white/30 max-w-[120px] truncate'>{item.adminNote}</p>
                     )}
                   </TableCell>
-                  <TableCell className='text-xs text-white/40 whitespace-nowrap'>{formatDate(item.createdAt)}</TableCell>
+                  <TableCell className='text-xs text-white/40 whitespace-nowrap'>
+                    {formatDate(item.createdAt)}
+                  </TableCell>
                   <TableCell className='text-right'>
                     <div className='flex items-center justify-end gap-1'>
                       {item.status === 'pending' && (
@@ -497,7 +507,9 @@ export default function AdminDepositPage() {
       {/* Pagination */}
       {!isLoading && total > 0 && (
         <div className='flex items-center justify-between text-sm text-white/40'>
-          <span>Tổng {total} yêu cầu · {PAGE_SIZE} / trang</span>
+          <span>
+            Tổng {total} yêu cầu · {PAGE_SIZE} / trang
+          </span>
           <div className='flex items-center gap-2'>
             <button
               type='button'
@@ -507,7 +519,9 @@ export default function AdminDepositPage() {
             >
               <ChevronLeft size={16} />
             </button>
-            <span className='text-white/60'>{page} / {totalPages}</span>
+            <span className='text-white/60'>
+              {page} / {totalPages}
+            </span>
             <button
               type='button'
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

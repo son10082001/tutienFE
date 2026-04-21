@@ -109,11 +109,10 @@ function ItemSelector({
             autoFocus
           />
         </div>
-        <div
-          className='max-h-60 overflow-y-auto p-1'
-          onWheelCapture={(e) => e.stopPropagation()}
-        >
-          {filtered.length === 0 && <div className='py-4 text-center text-xs text-white/30'>Không tìm thấy vật phẩm</div>}
+        <div className='max-h-60 overflow-y-auto p-1' onWheelCapture={(e) => e.stopPropagation()}>
+          {filtered.length === 0 && (
+            <div className='py-4 text-center text-xs text-white/30'>Không tìm thấy vật phẩm</div>
+          )}
           {filtered.map((it) => (
             <button
               key={it.id}
@@ -267,13 +266,11 @@ function BatchCodesDialog({ batch, onClose }: { batch: BatchInfo | null; onClose
                 <Loader2 className='animate-spin text-[#44C8F3]' />
               </div>
             ) : (
-              <pre className='font-mono text-sm text-[#44C8F3]'>
-                {codes.join('\n')}
-              </pre>
+              <pre className='font-mono text-sm text-[#44C8F3]'>{codes.join('\n')}</pre>
             )}
           </div>
-          <Button 
-            onClick={handleCopy} 
+          <Button
+            onClick={handleCopy}
             disabled={loading || !codes.length}
             className='w-full gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
           >
@@ -361,10 +358,10 @@ export default function AdminGiftCodePage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    
+
     const bonusesStr = form.rewards
-      .filter(r => r.gameItemId && r.quantity > 0)
-      .map(r => `2:1:${r.gameItemId},${r.quantity},0,0`)
+      .filter((r) => r.gameItemId && r.quantity > 0)
+      .map((r) => `2:1:${r.gameItemId},${r.quantity},0,0`)
       .join(';');
 
     const validated = giftCodeFormSchema.safeParse({
@@ -401,7 +398,10 @@ export default function AdminGiftCodePage() {
   }
 
   function bonusesToRewards(bonusesStr: string): RewardItem[] {
-    const chunks = bonusesStr.split(';').map((s) => s.trim()).filter(Boolean);
+    const chunks = bonusesStr
+      .split(';')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const rewards = chunks
       .map((chunk) => {
         const match = chunk.match(/^2:1:(.+)$/);
@@ -422,10 +422,10 @@ export default function AdminGiftCodePage() {
 
   function openEdit(batch: any) {
     setEditBatchId(batch.id);
-      setEditForm({
+    setEditForm({
       name: batch.name ?? '',
       channel: batch.channel ?? 'all',
-        generateCount: batch.vipLevel ?? 1,
+      generateCount: batch.vipLevel ?? 1,
       expiryDate: new Date(batch.expiryDate).toISOString().slice(0, 16),
       bonusesStr: batch.bonusesStr ?? '',
       vipLevel: batch.vipLevel ?? 0,
@@ -519,9 +519,12 @@ export default function AdminGiftCodePage() {
               className='pl-10 border-white/10 bg-white/5'
             />
           </div>
-          <Button onClick={() => setFormOpen(true)} className='gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'>
+          <Button
+            onClick={() => setFormOpen(true)}
+            className='gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
+          >
             <Plus size={16} />
-           Tạo gift code
+            Tạo gift code
           </Button>
         </div>
       </div>
@@ -569,11 +572,12 @@ export default function AdminGiftCodePage() {
                 <TableCell className='text-white/70'>{batch.usedCount ?? 0}</TableCell>
                 <TableCell className='text-white/70'>{formatDate(batch.expiryDate)}</TableCell>
                 <TableCell className='text-white/70'>
-                  {batch.channel === 'all' ? 'Tất cả' : (meta?.servers?.find(s => s.id.toString() === batch.channel)?.name || batch.channel)}
+                  {batch.channel === 'all'
+                    ? 'Tất cả'
+                    : meta?.servers?.find((s) => s.id.toString() === batch.channel)?.name || batch.channel}
                 </TableCell>
                 <TableCell className='text-right'>
                   <div className='inline-flex items-center gap-1'>
-                   
                     <Button
                       variant='ghost'
                       size='icon'
@@ -652,10 +656,10 @@ export default function AdminGiftCodePage() {
                 <label className='text-sm font-medium text-white/70'>Kênh (Server)</label>
                 <Select value={form.channel} onValueChange={(val) => setField('channel', val)}>
                   <SelectTrigger className='border-white/10 bg-white/5 text-white'>
-                    <SelectValue placeholder="Chọn server" />
+                    <SelectValue placeholder='Chọn server' />
                   </SelectTrigger>
                   <SelectContent className='bg-[#0C111D] border-white/10 text-white'>
-                    <SelectItem value="all">Toàn bộ server</SelectItem>
+                    <SelectItem value='all'>Toàn bộ server</SelectItem>
                     {meta?.servers?.map((server) => (
                       <SelectItem key={server.id} value={server.id.toString()}>
                         {server.name}
@@ -735,12 +739,16 @@ export default function AdminGiftCodePage() {
               >
                 Huỷ
               </Button>
-              <Button 
-                type='submit' 
+              <Button
+                type='submit'
                 disabled={createMutation.isPending}
                 className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
               >
-                {createMutation.isPending ? <Loader2 size={16} className='mr-2 animate-spin' /> : <Gift size={16} className='mr-2' />}
+                {createMutation.isPending ? (
+                  <Loader2 size={16} className='mr-2 animate-spin' />
+                ) : (
+                  <Gift size={16} className='mr-2' />
+                )}
                 Bắt đầu tạo mã
               </Button>
             </div>
@@ -787,7 +795,11 @@ export default function AdminGiftCodePage() {
             <div className='grid grid-cols-2 gap-4'>
               <div className='space-y-1.5'>
                 <label className='text-sm font-medium text-white/70'>Tên gift code</label>
-                <Input value={editForm.name} onChange={(e) => setEditField('name', e.target.value)} className='border-white/10 bg-white/5 text-white' />
+                <Input
+                  value={editForm.name}
+                  onChange={(e) => setEditField('name', e.target.value)}
+                  className='border-white/10 bg-white/5 text-white'
+                />
               </div>
               <div className='space-y-1.5'>
                 <label className='text-sm font-medium text-white/70'>Kênh (Server)</label>
@@ -836,7 +848,13 @@ export default function AdminGiftCodePage() {
                   <Package size={14} />
                   Vật phẩm nhận thưởng
                 </label>
-                <Button type='button' size='sm' variant='ghost' onClick={addEditReward} className='h-7 gap-1 px-2 text-[#44C8F3] hover:bg-[#44C8F3]/10'>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='ghost'
+                  onClick={addEditReward}
+                  className='h-7 gap-1 px-2 text-[#44C8F3] hover:bg-[#44C8F3]/10'
+                >
                   <Plus size={13} /> Thêm
                 </Button>
               </div>
@@ -853,11 +871,24 @@ export default function AdminGiftCodePage() {
               </div>
             </div>
             <div className='flex justify-end gap-3 pt-2'>
-              <Button type='button' variant='ghost' onClick={() => setEditOpen(false)} className='text-white/60 hover:bg-white/10'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={() => setEditOpen(false)}
+                className='text-white/60 hover:bg-white/10'
+              >
                 Huỷ
               </Button>
-              <Button type='submit' disabled={updateMutation.isPending} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'>
-                {updateMutation.isPending ? <Loader2 size={16} className='mr-2 animate-spin' /> : <Edit2 size={16} className='mr-2' />}
+              <Button
+                type='submit'
+                disabled={updateMutation.isPending}
+                className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80'
+              >
+                {updateMutation.isPending ? (
+                  <Loader2 size={16} className='mr-2 animate-spin' />
+                ) : (
+                  <Edit2 size={16} className='mr-2' />
+                )}
                 Lưu chỉnh sửa
               </Button>
             </div>

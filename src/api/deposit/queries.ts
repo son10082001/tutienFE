@@ -24,8 +24,7 @@ export const useMyDeposits = createQuery<
   Error
 >({
   primaryKey: 'my-deposits',
-  queryFn: ({ queryKey: [, variables] }) =>
-    getMyDeposits(variables.page, variables.limit),
+  queryFn: ({ queryKey: [, variables] }) => getMyDeposits(variables.page, variables.limit),
 });
 
 export const useAdminDeposits = createQuery<
@@ -34,8 +33,7 @@ export const useAdminDeposits = createQuery<
   Error
 >({
   primaryKey: 'admin-deposits',
-  queryFn: ({ queryKey: [, variables] }) =>
-    adminGetAllDeposits(variables.page, variables.limit, variables.status),
+  queryFn: ({ queryKey: [, variables] }) => adminGetAllDeposits(variables.page, variables.limit, variables.status),
 });
 
 export const useCreateDeposit = createMutation({
@@ -62,16 +60,13 @@ export const useAdminPatchDepositPromotion = createMutation({
 });
 
 export const useApproveDeposit = createMutation({
-  mutationFn: ({ id, adminNote }: { id: string; adminNote?: string }) =>
-    adminApproveDeposit(id, adminNote),
+  mutationFn: ({ id, adminNote }: { id: string; adminNote?: string }) => adminApproveDeposit(id, adminNote),
 });
 
 export const useRejectDeposit = createMutation({
-  mutationFn: ({ id, adminNote }: { id: string; adminNote?: string }) =>
-    adminRejectDeposit(id, adminNote),
+  mutationFn: ({ id, adminNote }: { id: string; adminNote?: string }) => adminRejectDeposit(id, adminNote),
 });
 
 export const useUpdateDeposit = createMutation({
-  mutationFn: ({ id, data }: { id: string; data: UpdateDepositAdminInput }) =>
-    adminUpdateDeposit(id, data),
+  mutationFn: ({ id, data }: { id: string; data: UpdateDepositAdminInput }) => adminUpdateDeposit(id, data),
 });

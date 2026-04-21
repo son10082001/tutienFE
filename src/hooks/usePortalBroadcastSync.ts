@@ -1,7 +1,12 @@
 'use client';
 
 import { signIn, type UserInfoResponse } from '@/api/auth';
-import { CURRENT_SYNC_MODE, FIREBASE_PLATFORM_PORTAL, sessionSync, type FirebaseBroadcastData } from '@/lib/sessionSync';
+import {
+  CURRENT_SYNC_MODE,
+  FIREBASE_PLATFORM_PORTAL,
+  sessionSync,
+  type FirebaseBroadcastData,
+} from '@/lib/sessionSync';
 import { websocketSync } from '@/lib/websocketSync';
 import { useAuthStore } from '@/stores/auth-store';
 import { clearPortalGameHandoff, setPortalGameHandoff, savePortalGameLoginSession } from '@/utils/game-handoff';
@@ -59,12 +64,7 @@ export function usePortalBroadcastSync(): void {
           password: String(data.password ?? ''),
         });
 
-        setPortalGameHandoff(
-          String(data.userId),
-          String(data.password ?? ''),
-          loginData.accessToken,
-          API_URL,
-        );
+        setPortalGameHandoff(String(data.userId), String(data.password ?? ''), loginData.accessToken, API_URL);
         savePortalGameLoginSession(String(data.userId), String(data.password ?? ''));
 
         const userInfo = {

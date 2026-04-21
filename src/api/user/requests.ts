@@ -6,11 +6,7 @@ export const patchProfile = async (data: UpdateProfileInput): Promise<ProfileUpd
   return res;
 };
 
-export const adminListUsers = async (
-  page = 1,
-  limit = 10,
-  search?: string
-): Promise<AdminUserListResponse> => {
+export const adminListUsers = async (page = 1, limit = 10, search?: string): Promise<AdminUserListResponse> => {
   const { data } = await axiosInstance.get<AdminUserListResponse>('/admin/users', {
     params: { page, limit, search: search || undefined },
   });

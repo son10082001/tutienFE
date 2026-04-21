@@ -1,9 +1,5 @@
 import { createMutation, createQuery } from 'react-query-kit';
-import {
-  createTicketConversion,
-  getTicketExchangeHistory,
-  getTicketExchangeMeta,
-} from './requests';
+import { createTicketConversion, getTicketExchangeHistory, getTicketExchangeMeta } from './requests';
 
 export const useTicketExchangeMeta = createQuery({
   primaryKey: 'ticket-exchange-meta',
@@ -16,8 +12,7 @@ export const useTicketExchangeHistory = createQuery<
   Error
 >({
   primaryKey: 'ticket-exchange-history',
-  queryFn: ({ queryKey: [, variables] }) =>
-    getTicketExchangeHistory(variables.page, variables.limit),
+  queryFn: ({ queryKey: [, variables] }) => getTicketExchangeHistory(variables.page, variables.limit),
 });
 
 export const useCreateTicketConversion = createMutation({

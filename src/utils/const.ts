@@ -7,8 +7,7 @@ export const GAME_LAUNCH_URL =
  * URL WebSocket đồng bộ phiên (dùng khi SYNC_MODE === 'websocket').
  * Trỏ tới endpoint `attachSessionSyncWs` gắn trên tutien-be.
  */
-export const WS_URL =
-  process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws/session';
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws/session';
 
 /**
  * Chế độ đồng bộ phiên portal ↔ game.
@@ -17,5 +16,4 @@ export const WS_URL =
  * - 'websocket': dùng WebSocket broker in-memory của tutien-be
  */
 export type SyncMode = 'firebase' | 'broadcast-channel' | 'websocket';
-export const SYNC_MODE: SyncMode =
-  (process.env.NEXT_PUBLIC_SYNC_MODE as SyncMode) || 'websocket';
+export const SYNC_MODE: SyncMode = (process.env.NEXT_PUBLIC_SYNC_MODE as SyncMode) || 'websocket';

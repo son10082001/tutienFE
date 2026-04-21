@@ -188,13 +188,10 @@ export default function ProfilePage() {
               </div>
               <p className='text-sm text-white/85 leading-relaxed'>{me?.vipLabel ?? '—'}</p>
               <p className='mt-2 text-xs text-white/45'>
-                Tổng nạp duyệt:{' '}
-                <span className='text-white/70'>{formatVnd(me?.balance ?? 0)}</span>
+                Tổng nạp duyệt: <span className='text-white/70'>{formatVnd(me?.balance ?? 0)}</span>
               </p>
               <details className='mt-3 text-xs text-white/50'>
-                <summary className='cursor-pointer text-amber-200/80 hover:text-amber-200'>
-                  Bảng mốc VIP
-                </summary>
+                <summary className='cursor-pointer text-amber-200/80 hover:text-amber-200'>Bảng mốc VIP</summary>
                 <ul className='mt-2 space-y-1 border-white/10 border-t pt-2'>
                   {VIP_TIER_DESCRIPTIONS.map((row) => (
                     <li key={row.level}>
@@ -259,13 +256,8 @@ export default function ProfilePage() {
         )}
 
         {tab === 'password' && (
-          <form
-            onSubmit={handleChangePassword}
-            className='space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6'
-          >
-            <p className='text-sm text-white/55'>
-              Nhập mật khẩu hiện tại và mật khẩu mới (tối thiểu 6 ký tự).
-            </p>
+          <form onSubmit={handleChangePassword} className='space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6'>
+            <p className='text-sm text-white/55'>Nhập mật khẩu hiện tại và mật khẩu mới (tối thiểu 6 ký tự).</p>
             <Input
               type='password'
               value={currentPassword}
@@ -294,9 +286,7 @@ export default function ProfilePage() {
               </Link>
               <Button
                 type='submit'
-                disabled={
-                  savingPassword || !currentPassword.trim() || newPassword.trim().length < 6
-                }
+                disabled={savingPassword || !currentPassword.trim() || newPassword.trim().length < 6}
                 className='h-11 rounded-xl bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'
               >
                 {savingPassword && <Loader2 className='mr-2 size-4 animate-spin' />}

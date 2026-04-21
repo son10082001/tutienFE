@@ -11,10 +11,6 @@ export { FIREBASE_PLATFORM_GAME, FIREBASE_PLATFORM_PORTAL } from './firebaseSync
  * Cả ba backend cùng một interface công khai.
  */
 export const sessionSync =
-  SYNC_MODE === 'firebase'
-    ? firebaseSync
-    : SYNC_MODE === 'websocket'
-      ? websocketSync
-      : broadcastChannelSync;
+  SYNC_MODE === 'firebase' ? firebaseSync : SYNC_MODE === 'websocket' ? websocketSync : broadcastChannelSync;
 
 export const CURRENT_SYNC_MODE = SYNC_MODE;

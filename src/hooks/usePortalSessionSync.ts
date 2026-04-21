@@ -43,7 +43,7 @@ export function usePortalSessionSync(enabled: boolean): void {
       sessionSync.startListening(String(uid));
     }
 
-    sessionSync.setSyncCallback(async (data:any) => {
+    sessionSync.setSyncCallback(async (data: any) => {
       // 1. Handle Logout Signal
       // Chỉ coi là logout signal khi offline đến từ platform KHÁC (game).
       // Nếu offline có platform là 'portal' (hoặc chính mình vừa ghi) thì
@@ -55,7 +55,11 @@ export function usePortalSessionSync(enabled: boolean): void {
         const fromPlatform = String(data.platform ?? '');
         if (fromPlatform === 'portal') return;
         if (isAuthenticated) {
-          console.log('[SessionSync] Logout signal received from', fromPlatform || 'unknown', '→ logging out portal...');
+          console.log(
+            '[SessionSync] Logout signal received from',
+            fromPlatform || 'unknown',
+            '→ logging out portal...'
+          );
           logout();
           window.location.href = ROUTES.LOGIN;
         }
@@ -73,12 +77,7 @@ export function usePortalSessionSync(enabled: boolean): void {
               password: data.credentials.password,
             });
 
-            setPortalGameHandoff(
-              data.credentials.userId,
-              data.credentials.password,
-              loginData.accessToken,
-              API_URL
-            );
+            setPortalGameHandoff(data.credentials.userId, data.credentials.password, loginData.accessToken, API_URL);
             savePortalGameLoginSession(data.credentials.userId, data.credentials.password);
 
             const userInfo = {

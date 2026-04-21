@@ -23,7 +23,6 @@ const initial: MessagePopupState = {
 
 export const useMessagePopupStore = create<MessagePopupState & MessagePopupActions>((set) => ({
   ...initial,
-  show: ({ variant, title, description }) =>
-    set({ open: true, variant, title, description: description || undefined }),
+  show: ({ variant, title, description }) => set({ open: true, variant, title, description: description || undefined }),
   close: () => set({ open: false, description: undefined }),
 }));

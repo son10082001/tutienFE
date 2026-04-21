@@ -12,8 +12,7 @@ export const useAdminUsers = createQuery<
   Error
 >({
   primaryKey: 'admin-users',
-  queryFn: ({ queryKey: [, variables] }) =>
-    adminListUsers(variables.page, variables.limit, variables.search),
+  queryFn: ({ queryKey: [, variables] }) => adminListUsers(variables.page, variables.limit, variables.search),
 });
 
 export const useAdminDeleteUser = createMutation({

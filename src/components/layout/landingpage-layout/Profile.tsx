@@ -46,12 +46,12 @@ const Profile = () => {
       </Show>
       {isLogin && (
         <div className='hidden items-center gap-2 sm:flex'>
-          <p className='max-w-[140px] truncate font-montserrat font-semibold text-sm text-white'>{user?.name || user?.userId}</p>
+          <p className='max-w-[140px] truncate font-montserrat font-semibold text-sm text-white'>
+            {user?.name || user?.userId}
+          </p>
           <div className='flex items-center gap-1 rounded-full border border-[#44C8F3]/30 bg-[#44C8F3]/10 px-2.5 py-1'>
             <Wallet size={12} className='text-[#44C8F3]' />
-            <span className='font-mono text-xs font-semibold text-[#44C8F3]'>
-              {formatVND(user?.balance ?? 0)}
-            </span>
+            <span className='font-mono text-xs font-semibold text-[#44C8F3]'>{formatVND(user?.balance ?? 0)}</span>
           </div>
         </div>
       )}
@@ -59,7 +59,10 @@ const Profile = () => {
       <Show when={isLogin}>
         <Popover>
           <PopoverTrigger asChild>
-            <button type='button' className='flex items-center gap-1 rounded-full p-1 text-white/80 transition hover:bg-white/10 hover:text-white'>
+            <button
+              type='button'
+              className='flex items-center gap-1 rounded-full p-1 text-white/80 transition hover:bg-white/10 hover:text-white'
+            >
               <AvatarCustom src='/images/avatar.png' />
               <ChevronDown className='hidden size-4 sm:block' />
             </button>
@@ -90,7 +93,10 @@ const Profile = () => {
                       user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
                     const token = getAccessToken();
                     if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {
-                      notifyError('Không mở được game', 'Chưa liên kết phiên game với tài khoản web. Vui lòng đăng nhập lại.');
+                      notifyError(
+                        'Không mở được game',
+                        'Chưa liên kết phiên game với tài khoản web. Vui lòng đăng nhập lại.'
+                      );
                       return;
                     }
                     const h = readPortalGameHandoff();

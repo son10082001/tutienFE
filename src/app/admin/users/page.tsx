@@ -72,7 +72,11 @@ export default function AdminUsersPage() {
             className='border-white/10 bg-white/5 pl-9 text-white placeholder:text-white/30'
           />
         </div>
-        <Button type='button' onClick={applySearch} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'>
+        <Button
+          type='button'
+          onClick={applySearch}
+          className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'
+        >
           Tìm
         </Button>
       </div>
@@ -143,7 +147,9 @@ export default function AdminUsersPage() {
 
       {!isLoading && total > 0 && (
         <div className='flex items-center justify-between text-sm text-white/40'>
-          <span>Tổng {total} tài khoản · {PAGE_SIZE} / trang</span>
+          <span>
+            Tổng {total} tài khoản · {PAGE_SIZE} / trang
+          </span>
           <div className='flex items-center gap-2'>
             <button
               type='button'
@@ -174,11 +180,16 @@ export default function AdminUsersPage() {
             <DialogTitle className='text-white'>Xóa người dùng</DialogTitle>
           </DialogHeader>
           <p className='text-sm text-white/65'>
-            Xóa vĩnh viễn tài khoản <span className='font-mono font-semibold text-white'>{deleting?.userId}</span>? Toàn bộ
-            phiên đăng nhập và lịch sử nạp tiền liên quan cũng sẽ bị xóa. Thao tác không thể hoàn tác.
+            Xóa vĩnh viễn tài khoản <span className='font-mono font-semibold text-white'>{deleting?.userId}</span>? Toàn
+            bộ phiên đăng nhập và lịch sử nạp tiền liên quan cũng sẽ bị xóa. Thao tác không thể hoàn tác.
           </p>
           <div className='mt-4 flex justify-end gap-3'>
-            <Button type='button' variant='ghost' onClick={() => setDeleting(null)} className='text-white/70 hover:bg-white/10'>
+            <Button
+              type='button'
+              variant='ghost'
+              onClick={() => setDeleting(null)}
+              className='text-white/70 hover:bg-white/10'
+            >
               Huỷ
             </Button>
             <Button

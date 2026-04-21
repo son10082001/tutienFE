@@ -27,7 +27,6 @@ const VIETCOMBANK_ACCOUNT = '0461000633851';
 const VIETCOMBANK_NAME = 'TU%20TIEN%20KIEM%20HIEP';
 const MOMO_PHONE = '0961795312';
 
-
 const AMOUNT_PRESETS = [
   { label: '10K', value: 10_000 },
   { label: '20K', value: 20_000 },
@@ -63,8 +62,11 @@ function formatVND(n: number) {
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('vi-VN', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -210,11 +212,11 @@ function HistoryTab() {
                 <p className='font-mono text-xs text-[#44C8F3]/90'>{item.note}</p>
                 <p className='text-xs text-white/40'>{item.method === 'vietqr' ? 'VietQR' : 'MoMo'}</p>
                 <p className='text-xs text-white/30'>{formatDate(item.createdAt)}</p>
-                {item.adminNote && (
-                  <p className='text-xs text-red-400'>{item.adminNote}</p>
-                )}
+                {item.adminNote && <p className='text-xs text-red-400'>{item.adminNote}</p>}
               </div>
-              <span className={cn('flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium', cfg.className)}>
+              <span
+                className={cn('flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium', cfg.className)}
+              >
                 {cfg.icon}
                 {cfg.label}
               </span>
@@ -224,7 +226,9 @@ function HistoryTab() {
       </div>
 
       <div className='flex items-center justify-between border-white/10 border-t pt-4 text-sm text-white/45'>
-        <span>Tổng {total} giao dịch · {HISTORY_PAGE_SIZE} / trang</span>
+        <span>
+          Tổng {total} giao dịch · {HISTORY_PAGE_SIZE} / trang
+        </span>
         {totalPages > 1 ? (
           <div className='flex items-center gap-2'>
             <button
@@ -235,7 +239,9 @@ function HistoryTab() {
             >
               <ChevronLeft size={18} />
             </button>
-            <span className='min-w-[4.5rem] text-center text-white/70'>{page} / {totalPages}</span>
+            <span className='min-w-[4.5rem] text-center text-white/70'>
+              {page} / {totalPages}
+            </span>
             <button
               type='button'
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -269,8 +275,7 @@ export default function DepositPage() {
 
   const { data: promoRes } = useDepositPromotion();
   const activePromo = promoRes?.active ?? null;
-  const previewBonus =
-    activePromo && amount >= 10_000 ? Math.floor((amount * activePromo.percent) / 100) : 0;
+  const previewBonus = activePromo && amount >= 10_000 ? Math.floor((amount * activePromo.percent) / 100) : 0;
 
   const queryClient = useQueryClient();
   const { mutate: createDeposit, isPending } = useCreateDeposit({
@@ -337,7 +342,12 @@ export default function DepositPage() {
 
         {/* Tabs */}
         <div className='mb-6 flex rounded-xl border border-white/10 bg-white/5 p-1'>
-          {([['deposit', 'Nạp tiền'], ['history', 'Lịch sử']] as [Tab, string][]).map(([t, label]) => (
+          {(
+            [
+              ['deposit', 'Nạp tiền'],
+              ['history', 'Lịch sử'],
+            ] as [Tab, string][]
+          ).map(([t, label]) => (
             <button
               key={t}
               type='button'
@@ -361,8 +371,7 @@ export default function DepositPage() {
                 <Percent className='mt-0.5 size-5 shrink-0 text-amber-300' />
                 <div>
                   <p className='font-semibold text-amber-100'>
-                    Khuyến mãi nạp +{activePromo.percent}%
-                    {activePromo.label ? ` · ${activePromo.label}` : ''}
+                    Khuyến mãi nạp +{activePromo.percent}%{activePromo.label ? ` · ${activePromo.label}` : ''}
                   </p>
                   <p className='mt-1 text-xs text-white/50'>
                     Áp dụng đến hết ngày{' '}
@@ -380,40 +389,41 @@ export default function DepositPage() {
             <div className='space-y-2'>
               <p className='text-sm font-medium text-white/70'>Phương thức nạp</p>
               <div className='grid grid-cols-2 gap-3'>
-                {([['vietqr', 'VietQR'], ['momo', 'MoMo']] as [Method, string][]).map(
-                  ([m, label]) => (
-                    <button
-                      key={m}
-                      type='button'
-                      onClick={() => {
-                        setMethod(m);
-                        setShowQR(false);
-                        setSubmitted(false);
-                        setActiveDeposit(null);
-                      }}
-                      className={cn(
-                        'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
-                        method === m
-                          ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
-                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
-                      )}
-                    >
-                      <Image
-                        src={m === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg'}
-                        alt={label}
-                        width={36}
-                        height={36}
-                        className='rounded-lg object-contain'
-                      />
-                      <div>
-                        <p className='font-semibold text-sm'>{label}</p>
-                        <p className='text-xs opacity-60'>
-                          {m === 'vietqr' ? 'Vietcombank' : `SĐT ${MOMO_PHONE}`}
-                        </p>
-                      </div>
-                    </button>
-                  )
-                )}
+                {(
+                  [
+                    ['vietqr', 'VietQR'],
+                    ['momo', 'MoMo'],
+                  ] as [Method, string][]
+                ).map(([m, label]) => (
+                  <button
+                    key={m}
+                    type='button'
+                    onClick={() => {
+                      setMethod(m);
+                      setShowQR(false);
+                      setSubmitted(false);
+                      setActiveDeposit(null);
+                    }}
+                    className={cn(
+                      'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
+                      method === m
+                        ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
+                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
+                    )}
+                  >
+                    <Image
+                      src={m === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg'}
+                      alt={label}
+                      width={36}
+                      height={36}
+                      className='rounded-lg object-contain'
+                    />
+                    <div>
+                      <p className='font-semibold text-sm'>{label}</p>
+                      <p className='text-xs opacity-60'>{m === 'vietqr' ? 'Vietcombank' : `SĐT ${MOMO_PHONE}`}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -450,14 +460,12 @@ export default function DepositPage() {
                       <p className='text-white/55'>Thực nhận</p>
                       <p className='font-bold text-lg text-[#44C8F3]'>{formatVND(amount + previewBonus)}</p>
                       <p className='text-xs text-white/40'>
-                        Gồm chuyển {formatVND(amount)} + thưởng {activePromo.percent}% (
-                        {formatVND(previewBonus)})
+                        Gồm chuyển {formatVND(amount)} + thưởng {activePromo.percent}% ({formatVND(previewBonus)})
                       </p>
                     </>
                   ) : (
                     <p className='text-white/60'>
-                      Số tiền chuyển khoản:{' '}
-                      <span className='font-semibold text-white'>{formatVND(amount)}</span>
+                      Số tiền chuyển khoản: <span className='font-semibold text-white'>{formatVND(amount)}</span>
                       {activePromo && previewBonus === 0 ? (
                         <span className='text-white/35'> (không có KM cho mức này)</span>
                       ) : null}
@@ -475,9 +483,13 @@ export default function DepositPage() {
                 className='w-full gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/80 disabled:opacity-50'
               >
                 {isPending ? (
-                  <><Loader2 size={16} className='animate-spin' /> Đang tạo mã...</>
+                  <>
+                    <Loader2 size={16} className='animate-spin' /> Đang tạo mã...
+                  </>
                 ) : (
-                  <><QrCode size={16} /> Hiển thị mã QR</>
+                  <>
+                    <QrCode size={16} /> Hiển thị mã QR
+                  </>
                 )}
               </Button>
             )}
@@ -499,9 +511,13 @@ export default function DepositPage() {
                     className='w-full gap-2 bg-green-500 font-semibold text-white hover:bg-green-600 disabled:opacity-50'
                   >
                     {isPending ? (
-                      <><Loader2 size={16} className='animate-spin' /> Đang gửi...</>
+                      <>
+                        <Loader2 size={16} className='animate-spin' /> Đang gửi...
+                      </>
                     ) : (
-                      <><CheckCircle2 size={16} /> Xác nhận chuyển tiền</>
+                      <>
+                        <CheckCircle2 size={16} /> Xác nhận chuyển tiền
+                      </>
                     )}
                   </Button>
                 ) : (

@@ -21,10 +21,6 @@ const JoinNow = () => {
 
   function handlePlayNow() {
     try {
-      if (!GAME_LAUNCH_URL) {
-        notifyError('Không mở được game', 'Thiếu cấu hình URL mở game.');
-        return;
-      }
       const portalUserId = user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
       const token = getAccessToken();
       if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {

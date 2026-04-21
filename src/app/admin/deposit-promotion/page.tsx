@@ -100,17 +100,14 @@ export default function AdminDepositPromotionPage() {
           <div>
             <h1 className='font-bold text-2xl text-white'>Khuyến mãi nạp tiền</h1>
             <p className='mt-1 text-sm text-white/50'>
-              Tạo đợt KM theo % và khoảng thời gian. Người chơi nạp trong thời gian hiệu lực được cộng thưởng khi
-              admin duyệt.
+              Tạo đợt KM theo % và khoảng thời gian. Người chơi nạp trong thời gian hiệu lực được cộng thưởng khi admin
+              duyệt.
             </p>
           </div>
         </div>
       </div>
 
-      <form
-        onSubmit={handleCreate}
-        className='max-w-xl space-y-4 rounded-xl border border-white/10 bg-white/5 p-6'
-      >
+      <form onSubmit={handleCreate} className='max-w-xl space-y-4 rounded-xl border border-white/10 bg-white/5 p-6'>
         <p className='font-medium text-sm text-white/80'>Tạo khuyến mãi mới</p>
         <div className='grid gap-4 sm:grid-cols-2'>
           <div className='space-y-1.5'>

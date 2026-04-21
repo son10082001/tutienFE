@@ -63,7 +63,13 @@ export default function FeaturedNews() {
   return (
     <section className='relative bg-[#080C14] px-4 py-16 md:py-20'>
       <div className='mx-auto max-w-6xl'>
-        <motion.div variants={containerDelayedVariants} initial='hidden' whileInView='visible' viewport={{ once: true }} className='mb-6 flex items-end justify-between gap-3'>
+        <motion.div
+          variants={containerDelayedVariants}
+          initial='hidden'
+          whileInView='visible'
+          viewport={{ once: true }}
+          className='mb-6 flex items-end justify-between gap-3'
+        >
           <motion.div variants={textVariants}>
             <p className='inline-flex items-center gap-2 rounded-full border border-[#44C8F3]/40 bg-[#44C8F3]/10 px-3 py-1 text-xs text-[#44C8F3] uppercase'>
               <Newspaper size={14} />
@@ -76,10 +82,18 @@ export default function FeaturedNews() {
           </Link>
         </motion.div>
 
-        <motion.div variants={containerDelayedVariants} initial='hidden' whileInView='visible' viewport={{ once: true }}>
+        <motion.div
+          variants={containerDelayedVariants}
+          initial='hidden'
+          whileInView='visible'
+          viewport={{ once: true }}
+        >
           {isLoading &&
             Array.from({ length: 3 }).map((_, idx) => (
-              <div key={`skeleton-${idx}`} className='h-64 animate-pulse rounded-2xl border border-white/10 bg-white/5' />
+              <div
+                key={`skeleton-${idx}`}
+                className='h-64 animate-pulse rounded-2xl border border-white/10 bg-white/5'
+              />
             ))}
 
           {!isLoading && !useSlider && (
@@ -135,7 +149,11 @@ export default function FeaturedNews() {
                     key={`snap-${idx}`}
                     type='button'
                     onClick={() => swiper?.slideTo(idx)}
-                    className={idx === activeSnap ? 'h-1.5 w-6 rounded-full bg-[#44C8F3]' : 'h-1.5 w-1.5 rounded-full bg-white/30'}
+                    className={
+                      idx === activeSnap
+                        ? 'h-1.5 w-6 rounded-full bg-[#44C8F3]'
+                        : 'h-1.5 w-1.5 rounded-full bg-white/30'
+                    }
                     aria-label={`Tới tin ${idx + 1}`}
                   />
                 ))}

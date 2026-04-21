@@ -4,16 +4,7 @@ import { useAdminDashboardStats } from '@/api/admin';
 import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
 import { Gift, Loader2, Package, TrendingUp, UserPlus, Users } from 'lucide-react';
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 function formatVND(n: number) {
   return `${new Intl.NumberFormat('vi-VN').format(n)}đ`;
@@ -51,10 +42,7 @@ export default function AdminDashboardPage() {
 
       <div className='grid gap-4 sm:grid-cols-3'>
         {statCards.map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className='flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-5'
-          >
+          <div key={label} className='flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-5'>
             <div className={cn('rounded-lg bg-white/10 p-3', color)}>
               <Icon size={20} />
             </div>

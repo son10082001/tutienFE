@@ -1,15 +1,15 @@
 module.exports = {
   apps: [
     {
-      name: "tutien-fe",
-      script: ".next/standalone/server.js",
-      instances: "max",
-      exec_mode: "cluster",
+      name: 'tutien-fe',
+      script: '.next/standalone/server.js',
+      instances: 'max',
+      exec_mode: 'cluster',
       env: {
-        NODE_ENV: "production",
+        NODE_ENV: 'production',
         PORT: 83,
-        NEXT_PUBLIC_API_URL: "http://localhost:84"
-      }
-    }
-  ]
+        NEXT_PUBLIC_API_URL: 'http://localhost:84',
+      },
+    },
+  ],
 };

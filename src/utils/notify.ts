@@ -18,8 +18,6 @@ export function notifyErrorFromUnknown(error: unknown) {
     (error as { statusText?: string })?.statusText ||
     (error as { detail?: string })?.detail;
   const desc =
-    typeof msg === 'string' && msg.trim()
-      ? translateError(msg.trim())
-      : 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+    typeof msg === 'string' && msg.trim() ? translateError(msg.trim()) : 'Đã có lỗi xảy ra. Vui lòng thử lại.';
   notifyError('Thất bại', desc);
 }

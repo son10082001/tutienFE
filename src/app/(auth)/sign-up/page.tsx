@@ -15,11 +15,7 @@ import { z } from 'zod';
 
 const formSchema = z
   .object({
-    userId: z
-      .string()
-      .trim()
-      .min(1, 'Vui lòng nhập tài khoản')
-      .max(128, 'Tài khoản tối đa 128 ký tự'),
+    userId: z.string().trim().min(1, 'Vui lòng nhập tài khoản').max(128, 'Tài khoản tối đa 128 ký tự'),
     password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
     confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu'),
   })
@@ -90,7 +86,7 @@ export default function SignUpPage() {
                     🗡️
                   </div>
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
-                  NGƯ TIÊN KÝ
+                    NGƯ TIÊN KÝ
                   </h2>
                 </div>
 

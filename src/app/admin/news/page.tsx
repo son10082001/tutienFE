@@ -73,7 +73,9 @@ export default function AdminNewsPage() {
   const [publishedAtLocal, setPublishedAtLocal] = useState('');
   const PAGE_SIZE = 10;
 
-  const { data, refetch } = useAdminNewsList({ variables: { page, limit: PAGE_SIZE, search: search.trim() || undefined } });
+  const { data, refetch } = useAdminNewsList({
+    variables: { page, limit: PAGE_SIZE, search: search.trim() || undefined },
+  });
   const createMutation = useAdminCreateNews();
   const updateMutation = useAdminUpdateNews();
   const deleteMutation = useAdminDeleteNews();
@@ -215,13 +217,25 @@ export default function AdminNewsPage() {
                 <TableCell className={item.isPublished ? 'text-emerald-300' : 'text-yellow-300'}>
                   {item.isPublished ? 'Đã xuất bản' : 'Bản nháp'}
                 </TableCell>
-                <TableCell>{item.isFeatured ? <Star size={15} className='fill-[#44C8F3] text-[#44C8F3]' /> : '-'}</TableCell>
+                <TableCell>
+                  {item.isFeatured ? <Star size={15} className='fill-[#44C8F3] text-[#44C8F3]' /> : '-'}
+                </TableCell>
                 <TableCell className='text-right'>
                   <div className='inline-flex items-center gap-1'>
-                    <Button variant='ghost' size='icon' onClick={() => openEdit(item)} className='text-white/70 hover:bg-white/10 hover:text-white'>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => openEdit(item)}
+                      className='text-white/70 hover:bg-white/10 hover:text-white'
+                    >
                       <Edit2 size={15} />
                     </Button>
-                    <Button variant='ghost' size='icon' onClick={() => remove(item.id)} className='text-red-400 hover:bg-red-500/10'>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => remove(item.id)}
+                      className='text-red-400 hover:bg-red-500/10'
+                    >
                       <Trash2 size={15} />
                     </Button>
                   </div>
@@ -241,7 +255,12 @@ export default function AdminNewsPage() {
           <span className='text-white/70'>
             {page} / {totalPages}
           </span>
-          <Button variant='ghost' size='sm' onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
             Sau
           </Button>
         </div>
@@ -256,11 +275,21 @@ export default function AdminNewsPage() {
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
                 <label className='text-sm text-white/70'>Tiêu đề</label>
-                <Input required value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} className='border-white/10 bg-white/5 text-white placeholder:text-white/40' />
+                <Input
+                  required
+                  value={form.title}
+                  onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                  className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                />
               </div>
               <div className='space-y-1.5'>
                 <label className='text-sm text-white/70'>Slug</label>
-                <Input required value={form.slug} onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))} className='border-white/10 bg-white/5 text-white placeholder:text-white/40' />
+                <Input
+                  required
+                  value={form.slug}
+                  onChange={(e) => setForm((p) => ({ ...p, slug: e.target.value }))}
+                  className='border-white/10 bg-white/5 text-white placeholder:text-white/40'
+                />
               </div>
             </div>
             <div className='space-y-1.5'>
@@ -283,7 +312,11 @@ export default function AdminNewsPage() {
               {uploadImageMutation.isPending && <p className='text-xs text-white/50'>Đang upload ảnh...</p>}
               {form.coverImage ? (
                 <div className='overflow-hidden rounded-lg border border-white/10'>
-                  <img src={resolveImagePreviewUrl(form.coverImage)} alt='cover-preview' className='h-32 w-full object-cover' />
+                  <img
+                    src={resolveImagePreviewUrl(form.coverImage)}
+                    alt='cover-preview'
+                    className='h-32 w-full object-cover'
+                  />
                 </div>
               ) : null}
             </div>
@@ -327,10 +360,19 @@ export default function AdminNewsPage() {
               </div>
             </div>
             <div className='flex justify-end gap-2'>
-              <Button type='button' variant='ghost' onClick={() => setOpen(false)} className='text-white/70 hover:bg-white/10'>
+              <Button
+                type='button'
+                variant='ghost'
+                onClick={() => setOpen(false)}
+                className='text-white/70 hover:bg-white/10'
+              >
                 Hủy
               </Button>
-              <Button type='submit' disabled={pending} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
+              <Button
+                type='submit'
+                disabled={pending}
+                className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'
+              >
                 {pending ? <Loader2 size={16} className='mr-2 animate-spin' /> : null}
                 Lưu bài viết
               </Button>

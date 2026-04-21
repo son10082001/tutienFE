@@ -41,13 +41,19 @@ export default function NewsPage() {
         <div className='grid gap-5 md:grid-cols-2 lg:grid-cols-3'>
           {isLoading &&
             Array.from({ length: LIMIT }).map((_, idx) => (
-              <div key={`news-skeleton-${idx}`} className='h-72 animate-pulse rounded-2xl border border-white/10 bg-white/5' />
+              <div
+                key={`news-skeleton-${idx}`}
+                className='h-72 animate-pulse rounded-2xl border border-white/10 bg-white/5'
+              />
             ))}
           {!isLoading &&
             items.map((item) => (
               <article key={item.id} className='overflow-hidden rounded-2xl border border-white/10 bg-white/5'>
                 {item.coverImage ? (
-                  <div className='h-40 bg-cover bg-center' style={{ backgroundImage: `url(${resolveImageUrl(item.coverImage)})` }} />
+                  <div
+                    className='h-40 bg-cover bg-center'
+                    style={{ backgroundImage: `url(${resolveImageUrl(item.coverImage)})` }}
+                  />
                 ) : (
                   <div className='flex h-40 items-center justify-center bg-gradient-to-r from-[#102033] to-[#0A1524]'>
                     <Newspaper size={28} className='text-[#44C8F3]' />

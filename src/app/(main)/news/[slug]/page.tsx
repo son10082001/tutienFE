@@ -51,7 +51,10 @@ export default function NewsDetailPage() {
         </Link>
 
         {data.coverImage ? (
-          <div className='mb-5 h-64 w-full rounded-2xl border border-white/10 bg-cover bg-center' style={{ backgroundImage: `url(${resolveImageUrl(data.coverImage)})` }} />
+          <div
+            className='mb-5 h-64 w-full rounded-2xl border border-white/10 bg-cover bg-center'
+            style={{ backgroundImage: `url(${resolveImageUrl(data.coverImage)})` }}
+          />
         ) : (
           <div className='mb-5 flex h-64 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-r from-[#102033] to-[#0A1524]'>
             <Newspaper size={32} className='text-[#44C8F3]' />

@@ -38,11 +38,11 @@ function Providers({ children }: ProvidersProps) {
           <PortalGameSessionBridge />
           <MessagePopupHost />
           <>{isMounted ? children : <></>}</>
-          <Toaster 
-            position="top-right" 
-            richColors 
-            expand={false} 
-            theme="dark"
+          <Toaster
+            position='top-right'
+            richColors
+            expand={false}
+            theme='dark'
             toastOptions={{
               className: 'border-white/10 bg-[#0C111D] text-white',
             }}

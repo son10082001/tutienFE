@@ -4,7 +4,18 @@ import { useLogout } from '@/hooks/useLogout';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
-import { CreditCard, Gift, LayoutDashboard, LogOut, Menu, Newspaper, Percent, ShoppingBag, Users, X } from 'lucide-react';
+import {
+  CreditCard,
+  Gift,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Newspaper,
+  Percent,
+  ShoppingBag,
+  Users,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -63,9 +74,7 @@ function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: (
               href={href}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-[#44C8F3]/15 text-[#44C8F3]'
-                  : 'text-white/60 hover:bg-white/10 hover:text-white'
+                isActive ? 'bg-[#44C8F3]/15 text-[#44C8F3]' : 'text-white/60 hover:bg-white/10 hover:text-white'
               )}
             >
               <Icon size={18} className='shrink-0' />

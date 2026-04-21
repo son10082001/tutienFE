@@ -23,7 +23,11 @@ export const getGiftCodeItems = async (): Promise<{ id: string; name: string }[]
   return data;
 };
 
-export const getGiftCodeBatches = async (params: { page?: number; limit?: number; search?: string }): Promise<GiftCodeBatchListResponse> => {
+export const getGiftCodeBatches = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<GiftCodeBatchListResponse> => {
   const { data } = await axiosInstance.get<GiftCodeBatchListResponse>('/admin/gift-codes', { params });
   return data;
 };
@@ -33,7 +37,10 @@ export const getGiftCodeBatchCodes = async (batchId: number): Promise<string[]> 
   return data;
 };
 
-export const updateGiftCodeBatch = async (batchId: number, payload: Partial<CreateGiftCodeInput>): Promise<GiftCodeBatch> => {
+export const updateGiftCodeBatch = async (
+  batchId: number,
+  payload: Partial<CreateGiftCodeInput>
+): Promise<GiftCodeBatch> => {
   const { data } = await axiosInstance.patch<GiftCodeBatch>(`/admin/gift-codes/${batchId}`, payload);
   return data;
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // hook for detect device
 export const useDeviceDetect = () => {
@@ -13,5 +13,5 @@ export const useDeviceDetect = () => {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     setIsMobile(isMobile);
   }, []);
-  return {isMobile, isDesktop: !isMobile};
+  return { isMobile, isDesktop: !isMobile };
 };

@@ -13,7 +13,8 @@ const fakeFaqs = [
   {
     id: 'faq-2',
     question: 'Mua vật phẩm xong chưa thấy trong game?',
-    answer: 'Bạn vào đúng server đã chọn khi mua và kiểm tra thư trong game. Nếu vẫn chưa có, gửi mã đơn hàng cho CSKH.',
+    answer:
+      'Bạn vào đúng server đã chọn khi mua và kiểm tra thư trong game. Nếu vẫn chưa có, gửi mã đơn hàng cho CSKH.',
   },
   {
     id: 'faq-3',
@@ -34,7 +35,9 @@ export default function SupportPage() {
       <div className='mx-auto max-w-6xl space-y-6'>
         <div className='text-center'>
           <h1 className='text-3xl font-bold text-white'>Chăm sóc khách hàng</h1>
-          <p className='mt-2 text-sm text-white/55'>Dữ liệu demo để duyệt UI. Tính năng gửi ticket thật sẽ nối API sau.</p>
+          <p className='mt-2 text-sm text-white/55'>
+            Dữ liệu demo để duyệt UI. Tính năng gửi ticket thật sẽ nối API sau.
+          </p>
         </div>
 
         <div className='grid gap-4 md:grid-cols-3'>

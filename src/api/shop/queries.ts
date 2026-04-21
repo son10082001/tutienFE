@@ -26,19 +26,14 @@ export const useAdminCreateShopItem = createMutation({
 });
 
 export const useAdminUpdateShopItem = createMutation({
-  mutationFn: ({ id, payload }: { id: string; payload: UpdateShopItemInput }) =>
-    adminUpdateShopItem(id, payload),
+  mutationFn: ({ id, payload }: { id: string; payload: UpdateShopItemInput }) => adminUpdateShopItem(id, payload),
 });
 
 export const useAdminDeleteShopItem = createMutation({
   mutationFn: (id: string) => adminDeleteShopItem(id),
 });
 
-export const useShopItems = createQuery<
-  Awaited<ReturnType<typeof listShopItems>>,
-  ShopItemsQuery,
-  Error
->({
+export const useShopItems = createQuery<Awaited<ReturnType<typeof listShopItems>>, ShopItemsQuery, Error>({
   primaryKey: 'shop-items',
   queryFn: ({ queryKey: [, variables] }) => listShopItems(variables),
 });

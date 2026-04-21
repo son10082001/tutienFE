@@ -12,9 +12,7 @@ const FooterLandingPage = () => {
   };
   return (
     <>
-      <footer
-        className={`border-white/40 border-t bg-[#0C111D] pb-[40px] sm:pb-0`}
-      >
+      <footer className={`border-white/40 border-t bg-[#0C111D] pb-[40px] sm:pb-0`}>
         <div className='mx-auto mt-6 flex flex-col items-center sm:mt-[18px]'>
           <Image
             src='/images/logo-header.png'

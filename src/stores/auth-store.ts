@@ -5,7 +5,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { sessionSync } from '@/lib/sessionSync';
 
-
 interface AuthState {
   access_token: string | null;
   refresh_token: string | null;

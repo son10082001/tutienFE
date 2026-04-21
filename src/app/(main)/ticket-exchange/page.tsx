@@ -1,11 +1,7 @@
 'use client';
 
 import { useMe } from '@/api/auth';
-import {
-  useCreateTicketConversion,
-  useTicketExchangeHistory,
-  useTicketExchangeMeta,
-} from '@/api/ticket-exchange';
+import { useCreateTicketConversion, useTicketExchangeHistory, useTicketExchangeMeta } from '@/api/ticket-exchange';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -51,18 +47,13 @@ export default function TicketExchangePage() {
   const characters = meta?.characters ?? [];
   const resolvedServerId = serverId ?? servers[0]?.id ?? null;
   const selectedCharacter =
-    resolvedServerId != null
-      ? characters.find((c) => c.serverId === resolvedServerId) ?? null
-      : null;
+    resolvedServerId != null ? (characters.find((c) => c.serverId === resolvedServerId) ?? null) : null;
   const convertAmount = Number(amountInput.replace(/\D/g, ''));
   const convertTickets = convertAmount > 0 ? Math.floor(convertAmount / rate) : 0;
 
   const { mutate: convertTicket, isPending: converting } = useCreateTicketConversion({
     onSuccess: (res) => {
-      notifySuccess(
-        'Đổi tiền sang phiếu thành công',
-        `Vui lòng kiểm tra mail game để nhận phiếu`
-      );
+      notifySuccess('Đổi tiền sang phiếu thành công', `Vui lòng kiểm tra mail game để nhận phiếu`);
       queryClient.refetchQueries({ queryKey: useTicketExchangeMeta.getKey() });
       queryClient.refetchQueries({ queryKey: useMe.getKey() });
       setAmountInput('');
@@ -157,7 +148,8 @@ export default function TicketExchangePage() {
                 className='border-white/10 bg-white/5 text-white placeholder:text-white/30'
               />
               <p className='text-xs text-white/60'>
-                Tỉ lệ: {rate.toLocaleString('vi-VN')}đ = 1 phiếu · Dự kiến nhận {convertTickets.toLocaleString('vi-VN')} phiếu
+                Tỉ lệ: {rate.toLocaleString('vi-VN')}đ = 1 phiếu · Dự kiến nhận {convertTickets.toLocaleString('vi-VN')}{' '}
+                phiếu
               </p>
               <Button
                 onClick={handleConvertBalance}
@@ -210,10 +202,7 @@ export default function TicketExchangePage() {
               <>
                 <div className='space-y-3'>
                   {historyRes?.items.map((row) => (
-                    <div
-                      key={row.id}
-                      className='rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm'
-                    >
+                    <div key={row.id} className='rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm'>
                       <p className='font-semibold text-white'>
                         {formatVND(row.amount)} → +{row.tickets.toLocaleString('vi-VN')} phiếu
                       </p>

@@ -44,7 +44,7 @@ function RewardPopup({ result, onClose }: { result: RedeemResult | null; onClose
 
             <div className='px-6 pb-8'>
               <div className='rounded-lg border border-white/10 bg-white/5 p-4 text-center'>
-                 <p className='text-sm text-white/80'>{result.message}</p>
+                <p className='text-sm text-white/80'>{result.message}</p>
               </div>
               <Button
                 onClick={onClose}
@@ -86,7 +86,7 @@ export default function GiftCodePage() {
 
   async function handleRedeem(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!code.trim()) {
       toast.error('Vui lòng nhập mã Gift Code');
       return;
@@ -107,8 +107,8 @@ export default function GiftCodePage() {
         roleId,
       });
 
-      const serverName = meta?.servers.find(s => s.id === serverId)?.name || `Server ${serverId}`;
-      
+      const serverName = meta?.servers.find((s) => s.id === serverId)?.name || `Server ${serverId}`;
+
       setResult({
         code: code.trim().toUpperCase(),
         serverName,
@@ -159,7 +159,9 @@ export default function GiftCodePage() {
                     'disabled:opacity-50'
                   )}
                 >
-                  <option value="" disabled className='text-white/30'>-- Chọn server --</option>
+                  <option value='' disabled className='text-white/30'>
+                    -- Chọn server --
+                  </option>
                   {meta?.servers.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name}

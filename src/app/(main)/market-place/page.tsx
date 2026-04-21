@@ -53,18 +53,13 @@ export default function MarketPlacePage() {
   const balance = meta?.balance ?? me?.balance ?? 0;
   const resolvedServerId = serverId ?? servers[0]?.id ?? null;
   const selectedCharacter =
-    resolvedServerId != null
-      ? characters.find((c) => c.serverId === resolvedServerId) ?? null
-      : null;
+    resolvedServerId != null ? (characters.find((c) => c.serverId === resolvedServerId) ?? null) : null;
 
   const items = shopRes?.items ?? [];
   const total = shopRes?.total ?? 0;
   const totalPages = shopRes?.totalPages ?? 1;
 
-  const buyingItem = useMemo(
-    () => items.find((item) => item.id === buyingItemId) ?? null,
-    [items, buyingItemId]
-  );
+  const buyingItem = useMemo(() => items.find((item) => item.id === buyingItemId) ?? null, [items, buyingItemId]);
 
   const { mutate: buyItem, isPending } = useBuyShopItem({
     onSuccess: (res) => {
@@ -193,9 +188,9 @@ export default function MarketPlacePage() {
                     return (
                       <div key={item.id} className='rounded-xl border border-white/10 bg-white/5 p-3'>
                         {item.imageUrl ? (
-                         <div className='mb-2 h-28 w-full rounded object-cover flex items-center justify-center'>
-                           <img src={item.imageUrl} alt={item.itemName} className='h-28 w-28 object-cover' />
-                         </div>
+                          <div className='mb-2 h-28 w-full rounded object-cover flex items-center justify-center'>
+                            <img src={item.imageUrl} alt={item.itemName} className='h-28 w-28 object-cover' />
+                          </div>
                         ) : (
                           <div className='mb-2 h-28 w-full rounded bg-white/10 object-cover' />
                         )}

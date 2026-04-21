@@ -109,11 +109,7 @@ export function ensurePortalGameHandoffForLaunch(
   const gid = getOrCreateDeviceGroupId();
   const existing = readPortalGameHandoff();
   if (existing?.userId === portalUserId && existing.password) {
-    if (
-      existing.accessToken !== accessToken ||
-      existing.apiBaseUrl !== base ||
-      existing.deviceGroupId !== gid
-    ) {
+    if (existing.accessToken !== accessToken || existing.apiBaseUrl !== base || existing.deviceGroupId !== gid) {
       setPortalGameHandoff(existing.userId, existing.password, accessToken, base, gid);
     }
     return true;

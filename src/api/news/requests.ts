@@ -16,11 +16,7 @@ export const getNewsBySlug = async (slug: string): Promise<NewsPost> => {
   return res.data;
 };
 
-export const adminGetNewsList = async (
-  page = 1,
-  limit = 10,
-  search?: string
-): Promise<NewsListResponse> => {
+export const adminGetNewsList = async (page = 1, limit = 10, search?: string): Promise<NewsListResponse> => {
   const res = await axiosInstance.get<NewsListResponse>('/admin/news', { params: { page, limit, search } });
   return res.data;
 };

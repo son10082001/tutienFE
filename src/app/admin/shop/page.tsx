@@ -139,7 +139,7 @@ export default function AdminShopPage() {
   const { mutate: createItem, isPending: creating } = useAdminCreateShopItem({
     onSuccess: () => {
       notifySuccess('Đã tạo', 'Sản phẩm đã thêm vào shop.');
-      queryClient.refetchQueries ({ queryKey: useAdminShopItems.getKey() });
+      queryClient.refetchQueries({ queryKey: useAdminShopItems.getKey() });
       setCreateOpen(false);
       setExternalItemId('');
       setItemName('');
@@ -158,7 +158,7 @@ export default function AdminShopPage() {
   const { mutate: deleteItem, isPending: deleting } = useAdminDeleteShopItem({
     onSuccess: () => {
       notifySuccess('Đã xóa', 'Sản phẩm đã được xóa.');
-      queryClient.refetchQueries ({ queryKey: useAdminShopItems.getKey() });
+      queryClient.refetchQueries({ queryKey: useAdminShopItems.getKey() });
     },
     onError: (e) => notifyErrorFromUnknown(e),
   });
@@ -229,7 +229,10 @@ export default function AdminShopPage() {
           <h1 className='text-2xl font-bold text-white'>Quản lý Shop</h1>
           <p className='mt-1 text-sm text-white/50'>Tạo sản phẩm bán cho user, bật/tắt và chỉnh sửa trực tiếp.</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
+        <Button
+          onClick={() => setCreateOpen(true)}
+          className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'
+        >
           Tạo sản phẩm
         </Button>
       </div>
@@ -273,9 +276,7 @@ export default function AdminShopPage() {
                       onClick={() => updateItem({ id: row.id, payload: { isActive: !row.isActive } })}
                       disabled={updating}
                       className={`relative inline-flex h-7 w-14 items-center rounded-full border transition ${
-                        row.isActive
-                          ? 'border-green-400/40 bg-green-500/20'
-                          : 'border-white/20 bg-white/10'
+                        row.isActive ? 'border-green-400/40 bg-green-500/20' : 'border-white/20 bg-white/10'
                       }`}
                       aria-pressed={row.isActive}
                       title={row.isActive ? 'Đang mở bán' : 'Đang tắt bán'}
@@ -370,15 +371,27 @@ export default function AdminShopPage() {
             </div>
             <div className='space-y-1'>
               <label className='text-xs text-white/60'>Tên item hiển thị</label>
-              <Input value={itemName} onChange={(e) => setItemName(e.target.value)} className='border-white/10 bg-white/5 text-white' />
+              <Input
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                className='border-white/10 bg-white/5 text-white'
+              />
             </div>
             <div className='space-y-1'>
               <label className='text-xs text-white/60'>Số lượng tồn kho</label>
-              <Input value={itemQuantity} onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+              <Input
+                value={itemQuantity}
+                onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))}
+                className='border-white/10 bg-white/5 text-white'
+              />
             </div>
             <div className='space-y-1'>
               <label className='text-xs text-white/60'>Giá (cho 1 sản phẩm)</label>
-              <Input value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+              <Input
+                value={price}
+                onChange={(e) => setPrice(e.target.value.replace(/\D/g, ''))}
+                className='border-white/10 bg-white/5 text-white'
+              />
             </div>
             <div className='space-y-2 sm:col-span-2'>
               <label className='text-xs text-white/60'>Ảnh sản phẩm</label>
@@ -397,7 +410,11 @@ export default function AdminShopPage() {
               <Button variant='ghost' className='text-white/70 hover:bg-white/10' onClick={() => setCreateOpen(false)}>
                 Hủy
               </Button>
-              <Button onClick={handleCreate} disabled={creating || isUploadingCreateImage} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
+              <Button
+                onClick={handleCreate}
+                disabled={creating || isUploadingCreateImage}
+                className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'
+              >
                 {creating && <Loader2 size={14} className='mr-2 animate-spin' />}
                 Tạo sản phẩm
               </Button>
@@ -428,16 +445,28 @@ export default function AdminShopPage() {
             </div>
             <div className='space-y-1'>
               <label className='text-xs text-white/60'>Tên sản phẩm</label>
-              <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} className='border-white/10 bg-white/5 text-white' />
+              <Input
+                value={editingName}
+                onChange={(e) => setEditingName(e.target.value)}
+                className='border-white/10 bg-white/5 text-white'
+              />
             </div>
             <div className='grid grid-cols-2 gap-3'>
               <div className='space-y-1'>
                 <label className='text-xs text-white/60'>Tồn kho</label>
-                <Input value={editingQuantity} onChange={(e) => setEditingQuantity(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+                <Input
+                  value={editingQuantity}
+                  onChange={(e) => setEditingQuantity(e.target.value.replace(/\D/g, ''))}
+                  className='border-white/10 bg-white/5 text-white'
+                />
               </div>
               <div className='space-y-1'>
                 <label className='text-xs text-white/60'>Giá</label>
-                <Input value={editingPrice} onChange={(e) => setEditingPrice(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+                <Input
+                  value={editingPrice}
+                  onChange={(e) => setEditingPrice(e.target.value.replace(/\D/g, ''))}
+                  className='border-white/10 bg-white/5 text-white'
+                />
               </div>
             </div>
             <div className='space-y-2'>
@@ -450,7 +479,11 @@ export default function AdminShopPage() {
               />
               {isUploadingEditImage && <p className='text-xs text-white/60'>Đang upload ảnh...</p>}
               {editingImage && (
-                <img src={editingImage} alt='Preview edit' className='h-16 w-16 rounded border border-white/10 object-cover' />
+                <img
+                  src={editingImage}
+                  alt='Preview edit'
+                  className='h-16 w-16 rounded border border-white/10 object-cover'
+                />
               )}
             </div>
             <div className='flex justify-end gap-2 pt-1'>
@@ -471,7 +504,9 @@ export default function AdminShopPage() {
                     imageUrl: editingImage.trim() || null,
                   });
                   if (!validated.success) {
-                    notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Dữ liệu sản phẩm không hợp lệ'));
+                    notifyErrorFromUnknown(
+                      new Error(validated.error.issues[0]?.message || 'Dữ liệu sản phẩm không hợp lệ')
+                    );
                     return;
                   }
                   updateItem({

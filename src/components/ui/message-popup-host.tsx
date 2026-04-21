@@ -41,20 +41,14 @@ export function MessagePopupHost() {
           <div className='flex flex-col items-center gap-4 pt-2 text-center'>
             {variant === 'success' ? (
               <div className='relative flex size-[92px] items-center justify-center'>
-                <div
-                  className='absolute size-[90px] rounded-full border-2 border-[#44C8F3]/18'
-                  aria-hidden
-                />
+                <div className='absolute size-[90px] rounded-full border-2 border-[#44C8F3]/18' aria-hidden />
                 <div
                   className='absolute size-[90px] motion-safe:animate-spin rounded-full border-2 border-transparent border-t-[#44C8F3] border-r-[#44C8F3]/45 motion-reduce:animate-none'
                   style={{ animationDuration: '0.9s' }}
                   aria-hidden
                 />
                 <div className='relative z-10 flex size-[72px] items-center justify-center rounded-full bg-[#44C8F3]/12 shadow-[0_0_28px_-6px_rgba(68,200,243,0.5)] ring-4 ring-[#44C8F3]/22'>
-                  <CheckCircle2
-                    className='success-popup-tick size-10 text-[#44C8F3]'
-                    strokeWidth={2.25}
-                  />
+                  <CheckCircle2 className='success-popup-tick size-10 text-[#44C8F3]' strokeWidth={2.25} />
                 </div>
               </div>
             ) : (
@@ -68,9 +62,7 @@ export function MessagePopupHost() {
             </DialogPrimitive.Title>
 
             {description ? (
-              <DialogPrimitive.Description className='text-sm text-white/65'>
-                {description}
-              </DialogPrimitive.Description>
+              <DialogPrimitive.Description className='text-sm text-white/65'>{description}</DialogPrimitive.Description>
             ) : (
               <DialogPrimitive.Description className='sr-only'>
                 {variant === 'success' ? 'Thao tác thành công' : 'Có lỗi xảy ra'}
