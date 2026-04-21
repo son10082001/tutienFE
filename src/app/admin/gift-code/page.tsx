@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { Calendar, Check, Copy, Edit2, Gift, Loader2, Package, Plus, Search, Sparkles, Trash2, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -207,6 +208,15 @@ interface FormState {
   rewards: RewardItem[];
 }
 
+const giftCodeFormSchema = z.object({
+  name: z.string().trim().min(3, 'Tên gift code tối thiểu 3 ký tự').max(32, 'Tên gift code tối đa 32 ký tự'),
+  channel: z.string().trim().min(1, 'Vui lòng chọn kênh'),
+  generateCount: z.number().int().min(1, 'Số lượt dùng tối thiểu là 1').max(1000, 'Số lượt dùng tối đa là 1000'),
+  expiryDate: z.string().min(1, 'Vui lòng chọn ngày hết hạn'),
+  useType: z.string().trim().min(1, 'Use type không hợp lệ'),
+  bonusesStr: z.string().min(1, 'Vui lòng chọn ít nhất một vật phẩm hợp lệ'),
+});
+
 const emptyForm = (): FormState => ({
   name: '',
   channel: 'all',
@@ -357,20 +367,28 @@ export default function AdminGiftCodePage() {
       .map(r => `2:1:${r.gameItemId},${r.quantity},0,0`)
       .join(';');
 
-    if (!bonusesStr) {
-      toast.error('Vui lòng chọn ít nhất một vật phẩm hợp lệ');
+    const validated = giftCodeFormSchema.safeParse({
+      name: form.name,
+      channel: form.channel,
+      generateCount: form.generateCount,
+      expiryDate: form.expiryDate,
+      useType: form.useType,
+      bonusesStr,
+    });
+    if (!validated.success) {
+      toast.error(validated.error.issues[0]?.message || 'Dữ liệu gift code chưa hợp lệ');
       return;
     }
 
     try {
       await createMutation.mutateAsync({
-        name: form.name,
-        channel: form.channel,
-        generateCount: form.generateCount,
-        expiryDate: form.expiryDate,
-        bonusesStr,
-        vipLevel: form.generateCount,
-        useType: form.useType,
+        name: validated.data.name,
+        channel: validated.data.channel,
+        generateCount: validated.data.generateCount,
+        expiryDate: validated.data.expiryDate,
+        bonusesStr: validated.data.bonusesStr,
+        vipLevel: validated.data.generateCount,
+        useType: validated.data.useType,
       });
 
       await refetchBatches();
@@ -424,20 +442,28 @@ export default function AdminGiftCodePage() {
       .filter((r) => r.gameItemId && r.quantity > 0)
       .map((r) => `2:1:${r.gameItemId},${r.quantity},0,0`)
       .join(';');
-    if (!bonusesStr) {
-      toast.error('Vui lòng chọn ít nhất một vật phẩm hợp lệ');
+    const validated = giftCodeFormSchema.safeParse({
+      name: editForm.name,
+      channel: editForm.channel,
+      generateCount: editForm.generateCount,
+      expiryDate: editForm.expiryDate,
+      useType: editForm.useType,
+      bonusesStr,
+    });
+    if (!validated.success) {
+      toast.error(validated.error.issues[0]?.message || 'Dữ liệu gift code chưa hợp lệ');
       return;
     }
     try {
       await updateMutation.mutateAsync({
         id: editBatchId,
         payload: {
-          name: editForm.name,
-          channel: editForm.channel,
-          expiryDate: editForm.expiryDate,
-          bonusesStr,
-          vipLevel: editForm.generateCount,
-          useType: editForm.useType,
+          name: validated.data.name,
+          channel: validated.data.channel,
+          expiryDate: validated.data.expiryDate,
+          bonusesStr: validated.data.bonusesStr,
+          vipLevel: validated.data.generateCount,
+          useType: validated.data.useType,
         },
       });
       await refetchBatches();

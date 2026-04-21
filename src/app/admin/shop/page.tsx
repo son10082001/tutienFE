@@ -18,12 +18,20 @@ import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { Check, ChevronLeft, ChevronRight, Edit2, Loader2, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { z } from 'zod';
 
 function formatVND(n: number) {
   return `${new Intl.NumberFormat('vi-VN').format(n)}đ`;
 }
 
 const PAGE_SIZE = 10;
+const shopCreateSchema = z.object({
+  externalItemId: z.number().int().min(1, 'Vui lòng chọn item từ danh sách API'),
+  itemName: z.string().trim().min(1, 'Tên item không được để trống').max(128, 'Tên item tối đa 128 ký tự'),
+  itemQuantity: z.number().int().min(1, 'Tồn kho tối thiểu 1'),
+  price: z.number().int().min(1000, 'Giá tối thiểu 1.000đ'),
+  imageUrl: z.string().trim().nullable().optional(),
+});
 
 function ExternalItemSelector({
   value,
@@ -157,16 +165,23 @@ export default function AdminShopPage() {
 
   function handleCreate() {
     const extId = Number(externalItemId);
-    if (!extId) {
-      notifyErrorFromUnknown(new Error('Vui lòng chọn item từ danh sách API'));
-      return;
-    }
-    createItem({
+    const validated = shopCreateSchema.safeParse({
       externalItemId: extId,
       itemName: itemName.trim() || itemNameById.get(extId) || `Item ${extId}`,
       itemQuantity: Number(itemQuantity),
       price: Number(price),
       imageUrl: imageUrl.trim() || null,
+    });
+    if (!validated.success) {
+      notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Dữ liệu sản phẩm không hợp lệ'));
+      return;
+    }
+    createItem({
+      externalItemId: validated.data.externalItemId,
+      itemName: validated.data.itemName,
+      itemQuantity: validated.data.itemQuantity,
+      price: validated.data.price,
+      imageUrl: validated.data.imageUrl ?? null,
       isActive: true,
     });
   }
@@ -448,18 +463,25 @@ export default function AdminShopPage() {
                 onClick={() => {
                   if (!editingId) return;
                   const extId = Number(editingExternalItemId);
-                  if (!extId) {
-                    notifyErrorFromUnknown(new Error('Vui lòng chọn item từ danh sách API'));
+                  const validated = shopCreateSchema.safeParse({
+                    externalItemId: extId,
+                    itemName: editingName.trim(),
+                    itemQuantity: Number(editingQuantity),
+                    price: Number(editingPrice),
+                    imageUrl: editingImage.trim() || null,
+                  });
+                  if (!validated.success) {
+                    notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Dữ liệu sản phẩm không hợp lệ'));
                     return;
                   }
                   updateItem({
                     id: editingId,
                     payload: {
-                      externalItemId: extId,
-                      itemName: editingName.trim(),
-                      itemQuantity: Number(editingQuantity),
-                      price: Number(editingPrice),
-                      imageUrl: editingImage.trim() || null,
+                      externalItemId: validated.data.externalItemId,
+                      itemName: validated.data.itemName,
+                      itemQuantity: validated.data.itemQuantity,
+                      price: validated.data.price,
+                      imageUrl: validated.data.imageUrl ?? null,
                     },
                   });
                   setEditingId(null);

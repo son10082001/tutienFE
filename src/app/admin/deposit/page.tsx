@@ -29,6 +29,7 @@ import {
 import Link from 'next/link';
 import { ROUTES } from '@/lib/routes';
 import { useEffect, useState } from 'react';
+import { z } from 'zod';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -50,6 +51,19 @@ const SERVER_LABEL: Record<string, string> = {
   sv2: 'Server 2',
   sv3: 'Server 3',
 };
+
+const updateDepositSchema = z.object({
+  amount: z.number().int().min(1000, 'Số tiền tối thiểu 1.000đ').optional(),
+  note: z
+    .string()
+    .trim()
+    .regex(/^NT\d{6}$/, 'Mã giao dịch phải theo định dạng NT + 6 số (VD: NT123456)')
+    .optional(),
+  status: z.enum(['pending', 'approved', 'rejected']).optional(),
+  adminNote: z.string().max(512, 'Ghi chú admin tối đa 512 ký tự').optional(),
+});
+
+const adminNoteSchema = z.string().max(512, 'Ghi chú admin tối đa 512 ký tự');
 
 function formatVND(n: number) {
   return new Intl.NumberFormat('vi-VN').format(n) + 'đ';
@@ -92,7 +106,12 @@ function EditDialog({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    update({ id: item!.id, data: form });
+    const validated = updateDepositSchema.safeParse(form);
+    if (!validated.success) {
+      notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Dữ liệu cập nhật chưa hợp lệ'));
+      return;
+    }
+    update({ id: item!.id, data: validated.data });
   }
 
   return (
@@ -118,7 +137,13 @@ function EditDialog({
             <label className='text-sm font-medium text-white/70'>Mã giao dịch</label>
             <Input
               value={form.note}
-              onChange={(e) => setForm((p) => ({ ...p, note: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => {
+                  const digits = e.target.value.replace(/\D/g, '').slice(0, 6);
+                  return { ...p, note: `NT${digits}` };
+                })
+              }
+              placeholder='VD: NT123456'
               className='border-white/10 bg-white/5 font-mono text-white text-sm'
             />
           </div>
@@ -223,7 +248,14 @@ function ApproveDialog({
           </Button>
           <Button
             disabled={isPending}
-            onClick={() => approve({ id: item!.id, adminNote: adminNote || undefined })}
+            onClick={() => {
+              const validated = adminNoteSchema.safeParse(adminNote);
+              if (!validated.success) {
+                notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Ghi chú admin chưa hợp lệ'));
+                return;
+              }
+              approve({ id: item!.id, adminNote: validated.data || undefined });
+            }}
             className='gap-2 bg-green-500 font-semibold text-white hover:bg-green-600'
           >
             {isPending && <Loader2 size={14} className='animate-spin' />}
@@ -280,7 +312,14 @@ function RejectDialog({
           </Button>
           <Button
             disabled={isPending}
-            onClick={() => reject({ id: item!.id, adminNote: adminNote || undefined })}
+            onClick={() => {
+              const validated = adminNoteSchema.safeParse(adminNote);
+              if (!validated.success) {
+                notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Ghi chú admin chưa hợp lệ'));
+                return;
+              }
+              reject({ id: item!.id, adminNote: validated.data || undefined });
+            }}
             className='gap-2 bg-red-500 font-semibold text-white hover:bg-red-600'
           >
             {isPending && <Loader2 size={14} className='animate-spin' />}

@@ -13,15 +13,15 @@ const FooterLandingPage = () => {
   return (
     <>
       <footer
-        className={`border-white/40 border-t bg-[#0C111D] pb-[40px] sm:pb-0 lg:hidden ${isAuthPage ? 'hidden' : ''}`}
+        className={`border-white/40 border-t bg-[#0C111D] pb-[40px] sm:pb-0`}
       >
         <div className='mx-auto mt-6 flex flex-col items-center sm:mt-[18px]'>
           <Image
-            src='/images/svgs/logo.svg'
+            src='/images/logo-header.png'
             alt='logo'
             width={100}
             height={100}
-            className='h-[88px] w-auto cursor-pointer sm:h-[135px]'
+            className='h-[80px] w-auto cursor-pointer sm:h-[135px]'
             onClick={() => router.push('/')}
           />
 

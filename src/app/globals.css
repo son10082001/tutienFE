@@ -177,7 +177,9 @@
   animation: zoomOut 1s forwards;
 }
 .custom-cursor {
-  cursor: url("/images/cursor.png") 4 4, auto;
+  cursor:
+    url("/images/cursor.png") 4 4,
+    auto;
 }
 
 .custom-cursor * {
@@ -255,7 +257,9 @@
   display: none !important;
 }
 .transition-height-opacity {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .hidden-state {
@@ -468,4 +472,8 @@ table.rounded-corners tr:last-child td:last-child {
     animation: none;
     filter: none;
   }
+}
+
+.swiper-slide {
+  border-radius: 24px !important;
 }

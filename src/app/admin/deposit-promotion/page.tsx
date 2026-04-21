@@ -15,6 +15,19 @@ import { ArrowLeft, Loader2, Percent } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
+import { z } from 'zod';
+
+const createPromotionSchema = z
+  .object({
+    percent: z.number().int().min(1, 'Phần trăm thưởng từ 1 đến 100').max(100, 'Phần trăm thưởng từ 1 đến 100'),
+    startDate: z.string().min(1, 'Chọn ngày bắt đầu'),
+    endDate: z.string().min(1, 'Chọn ngày kết thúc'),
+    label: z.string().trim().max(128, 'Tên hiển thị tối đa 128 ký tự').optional(),
+  })
+  .refine((data) => new Date(data.endDate).getTime() >= new Date(data.startDate).getTime(), {
+    message: 'Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu',
+    path: ['endDate'],
+  });
 
 function formatRange(startIso: string, endIso: string) {
   const fmt = (s: string) =>
@@ -50,16 +63,21 @@ export default function AdminDepositPromotionPage() {
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const p = Number(percent);
-    if (!startDate || !endDate) {
-      notifyErrorFromUnknown(new Error('Chọn ngày bắt đầu và kết thúc'));
-      return;
-    }
-    createPromo({
-      percent: p,
+    const validated = createPromotionSchema.safeParse({
+      percent: Number(percent),
       startDate,
       endDate,
       label: label.trim() || undefined,
+    });
+    if (!validated.success) {
+      notifyErrorFromUnknown(new Error(validated.error.issues[0]?.message || 'Dữ liệu khuyến mãi không hợp lệ'));
+      return;
+    }
+    createPromo({
+      percent: validated.data.percent,
+      startDate: validated.data.startDate,
+      endDate: validated.data.endDate,
+      label: validated.data.label,
       isActive: true,
     });
   }

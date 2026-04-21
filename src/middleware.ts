@@ -31,7 +31,7 @@ export function middleware(request: NextRequest) {
   const normalizedRole = (role || '').toUpperCase();
   const isAdmin = normalizedRole === 'ADMIN';
 
-  const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT];
+  const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS];
   const isPublicPage = publicPages.includes(pathname);
 
   const authPages = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];

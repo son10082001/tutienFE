@@ -7,7 +7,8 @@ import { ROUTE } from '@/types';
 
 const PUBLIC_NAV = [
   { id: 1, label: 'Cửa hàng', url: ROUTE.MARKET_PLACE },
-  { id: 2, label: 'Chăm sóc khách hàng', url: ROUTE.SUPPORT },
+  { id: 2, label: 'Tin tức', url: ROUTE.NEWS },
+  { id: 3, label: 'Chăm sóc khách hàng', url: ROUTE.SUPPORT },
 ];
 
 const AUTH_NAV = [
@@ -16,7 +17,8 @@ const AUTH_NAV = [
   { id: 3, label: 'Đổi phiếu', url: ROUTE.TICKET_EXCHANGE },
   { id: 4, label: 'Gift Code', url: ROUTE.GIFT_CODE },
   { id: 5, label: 'Hồ sơ', url: ROUTE.PROFILE },
-  { id: 6, label: 'Chăm sóc khách hàng', url: ROUTE.SUPPORT },
+  { id: 6, label: 'Tin tức', url: ROUTE.NEWS },
+  { id: 7, label: 'Chăm sóc khách hàng', url: ROUTE.SUPPORT },
 ];
 
 const Navbar = () => {

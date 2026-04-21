@@ -277,7 +277,13 @@ export default function DepositPage() {
     onError: (err) => notifyErrorFromUnknown(err),
   });
 
-const transferNote = (activeDeposit?.note ?? '').replace(/[+-]/g, '');
+  const transferNote = (() => {
+    const raw = (activeDeposit?.note ?? '').toUpperCase();
+    const matched = raw.match(/^NT\d{6}$/);
+    if (matched) return matched[0];
+    const digits = raw.replace(/\D/g, '').slice(0, 6).padEnd(6, '0');
+    return `NT${digits}`;
+  })();
 
   function handleAmountInput(val: string) {
     const num = Number(val.replace(/\D/g, ''));
@@ -495,7 +501,7 @@ const transferNote = (activeDeposit?.note ?? '').replace(/[+-]/g, '');
                     {isPending ? (
                       <><Loader2 size={16} className='animate-spin' /> Đang gửi...</>
                     ) : (
-                      <><CheckCircle2 size={16} /> Tôi đã chuyển tiền</>
+                      <><CheckCircle2 size={16} /> Xác nhận chuyển tiền</>
                     )}
                   </Button>
                 ) : (

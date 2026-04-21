@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 
+import { buttonScaleVariants, containerDelayedVariants, textVariants } from '@/components/_animations';
 import RippleBackground from '@/components/ui/ripple-background';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
@@ -13,6 +14,7 @@ import {
   readPortalGameHandoff,
 } from '@/utils/game-handoff';
 import { notifyError } from '@/utils/notify';
+import { motion } from 'framer-motion';
 
 const JoinNow = () => {
   const user = useAuthStore((state) => state.user);
@@ -48,13 +50,22 @@ const JoinNow = () => {
       intensity={5}
       rippleSize={40}
     >
-      <div className='container flex flex-col items-center'>
-        <Image src={'/images/logo-header.png'} width={288.48} height={192.27} alt='logo' className='h-[184px] w-auto' />
-        <p className='mt-6 mb-3 text-center font-extrabold text-2xl text-yellow-300 uppercase tracking-widest drop-shadow-[0_2px_0_#000] [text-shadow:0_0_10px_rgba(255,200,0,0.8),0_0_20px_rgba(255,150,0,0.6)] md:text-3xl '>
+      <motion.div
+        className='container flex flex-col items-center'
+        variants={containerDelayedVariants}
+        initial='hidden'
+        animate='visible'
+      >
+        <Image src={'/images/logo-header.png'} width={388.48} height={292.27} alt='logo' className='w-[388.48px]' />
+        <motion.p
+          variants={textVariants}
+          className='mb-3 text-center font-extrabold text-2xl text-yellow-300 uppercase tracking-widest drop-shadow-[0_2px_0_#000] [text-shadow:0_0_10px_rgba(255,200,0,0.8),0_0_20px_rgba(255,150,0,0.6)] md:text-3xl '
+        >
           Ngư Tiên Ký – Thả Câu Một Lần, Ngộ Đạo Ngàn Năm
-        </p>
+        </motion.p>
 
-        <button
+        <motion.button
+          variants={buttonScaleVariants}
           onClick={handlePlayNow}
           className={cn(
             'relative h-[60px] w-[180px]',
@@ -71,8 +82,8 @@ const JoinNow = () => {
           <span className='relative z-10'>Chơi ngay</span>
 
           <span className='absolute inset-0 rounded-xl bg-yellow-300 opacity-20 blur-md'></span>
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </RippleBackground>
   );
 };

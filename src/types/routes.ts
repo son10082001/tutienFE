@@ -26,7 +26,9 @@ export const ROUTE = {
   DEPOSIT: '/deposit',
   TICKET_EXCHANGE: '/ticket-exchange',
   GIFT_CODE: '/gift-code',
+  NEWS: '/news',
   ADMIN_GIFT_CODE: '/admin/gift-code',
+  ADMIN_NEWS: '/admin/news',
 } as const;
 
 export type ROUTE_KEY = keyof typeof ROUTE;

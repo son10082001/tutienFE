@@ -7,6 +7,7 @@ export const ROUTES = {
   ADMIN_DEPOSIT_PROMOTION: '/admin/deposit-promotion',
   ADMIN_SHOP: '/admin/shop',
   ADMIN_USERS: '/admin/users',
+  ADMIN_NEWS: '/admin/news',
   PROFILE: '/profile',
   LOGIN: '/login',
   SIGN_UP: '/sign-up',
@@ -17,6 +18,7 @@ export const ROUTES = {
   GIFT_CODE: '/gift-code',
   MARKET_PLACE: '/market-place',
   SUPPORT: '/support',
+  NEWS: '/news',
 };
 
 export const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];
