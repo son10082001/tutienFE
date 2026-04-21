@@ -56,6 +56,7 @@
     "react-hook-form": "^7.67.0",
     "react-markdown": "^10.1.0",
     "react-query-kit": "^2.0.0",
+    "recharts": "^3.8.1",
     "sonner": "^2.0.5",
     "swiper": "^12.0.3",
     "tailwind-merge": "^2.5.4",

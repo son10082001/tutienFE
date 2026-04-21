@@ -15,6 +15,8 @@ export const ROUTES = {
   DEPOSIT: '/deposit',
   TICKET_EXCHANGE: '/ticket-exchange',
   GIFT_CODE: '/gift-code',
+  MARKET_PLACE: '/market-place',
+  SUPPORT: '/support',
 };
 
 export const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];

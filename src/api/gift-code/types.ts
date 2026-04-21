@@ -29,3 +29,23 @@ export interface CreateGiftCodeResponse {
   count: number;
   codes: string[];
 }
+
+export interface GiftCodeBatch {
+  id: number;
+  name: string;
+  expiryDate: string;
+  channel: string;
+  vipLevel: number;
+  useType: string;
+  bonusesStr: string;
+  usedCount: number;
+  totalAllowed: number;
+}
+
+export interface GiftCodeBatchListResponse {
+  items: GiftCodeBatch[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

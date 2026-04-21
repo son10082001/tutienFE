@@ -1,5 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createGiftCodes, getGiftCodeBatchCodes, getGiftCodeBatches, getGiftCodeItems, redeemGiftCode } from './requests';
+import {
+  createGiftCodes,
+  deleteGiftCodeBatch,
+  getGiftCodeBatchCodes,
+  getGiftCodeBatches,
+  getGiftCodeItems,
+  redeemGiftCode,
+  updateGiftCodeBatch,
+} from './requests';
 
 export const useCreateGiftCodesMutation = () => {
   return useMutation({
@@ -24,6 +32,25 @@ export const useGiftCodeItems = () => {
 export const useGiftCodeBatches = () => {
   return useQuery({
     queryKey: ['gift-code-batches'],
-    queryFn: getGiftCodeBatches,
+    queryFn: () => getGiftCodeBatches({ page: 1, limit: 10 }),
+  });
+};
+
+export const useGiftCodeBatchesPaginated = (variables: { page?: number; limit?: number; search?: string }) => {
+  return useQuery({
+    queryKey: ['gift-code-batches', variables],
+    queryFn: () => getGiftCodeBatches(variables),
+  });
+};
+
+export const useUpdateGiftCodeBatchMutation = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: any }) => updateGiftCodeBatch(id, payload),
+  });
+};
+
+export const useDeleteGiftCodeBatchMutation = () => {
+  return useMutation({
+    mutationFn: (id: number) => deleteGiftCodeBatch(id),
   });
 };

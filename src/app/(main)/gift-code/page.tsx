@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { CheckCircle2, ChevronDown, Gift, Loader2, Package, Server, Sparkles, User } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { CheckCircle2, ChevronDown, Gift, Loader2, Server, Sparkles, User } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -76,6 +76,14 @@ export default function GiftCodePage() {
     return meta.characters.filter((c) => c.serverId === serverId);
   }, [meta, serverId]);
 
+  useEffect(() => {
+    if (!serverId || filteredCharacters.length === 0) {
+      setRoleId('');
+      return;
+    }
+    setRoleId(filteredCharacters[0]!.uid);
+  }, [serverId, filteredCharacters]);
+
   async function handleRedeem(e: React.FormEvent) {
     e.preventDefault();
     
@@ -88,7 +96,7 @@ export default function GiftCodePage() {
       return;
     }
     if (!roleId) {
-      toast.error('Vui lòng chọn nhân vật');
+      toast.error('Server đã chọn chưa có nhân vật');
       return;
     }
 
@@ -122,7 +130,7 @@ export default function GiftCodePage() {
           <div className='mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#44C8F3]/30 to-[#44C8F3]/5 ring-1 ring-[#44C8F3]/20'>
             <Gift size={28} className='text-[#44C8F3]' />
           </div>
-          <h1 className='font-bold text-2xl text-white italic tracking-tight uppercase'>Nhập Gift Code</h1>
+          <h1 className='font-bold text-2xl text-white tracking-tight uppercase'>Nhập Gift Code</h1>
           <p className='mt-2 text-sm text-white/50'>Nhận vật phẩm độc quyền cho nhân vật của bạn</p>
         </div>
 
@@ -165,39 +173,23 @@ export default function GiftCodePage() {
               </div>
             </div>
 
-            {/* Character select */}
+            {/* Character auto-fill */}
             <div className='space-y-1.5'>
               <label className='flex items-center gap-1.5 text-sm font-medium text-white/70'>
                 <User size={14} />
-                Chọn nhân vật
+                Nhân vật nhận quà
               </label>
-              <div className='relative'>
-                <select
-                  value={roleId}
-                  onChange={(e) => setRoleId(e.target.value)}
-                  disabled={!serverId || filteredCharacters.length === 0 || redeemMutation.isPending}
-                  className={cn(
-                    'flex h-11 w-full appearance-none rounded-lg border border-white/10 bg-white/5',
-                    'px-4 pr-10 text-sm text-white transition-all',
-                    'focus:outline-none focus:ring-1 focus:ring-[#44C8F3]/50',
-                    '[&>option]:bg-[#0C111D] [&>option]:text-white',
-                    'disabled:opacity-50'
-                  )}
-                >
-                  <option value="" disabled>
-                    {!serverId ? 'Vui lòng chọn server trước' : filteredCharacters.length === 0 ? 'Không có nhân vật nào' : '-- Chọn nhân vật --'}
-                  </option>
-                  {filteredCharacters.map((c) => (
-                    <option key={c.uid} value={c.uid}>
-                      {c.name} (Lv.{c.level || 1})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  size={16}
-                  className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40'
-                />
-              </div>
+              <Input
+                readOnly
+                value={
+                  !serverId
+                    ? 'Vui lòng chọn server trước'
+                    : filteredCharacters.length === 0
+                      ? 'Không có nhân vật nào'
+                      : `${filteredCharacters[0]!.name}`
+                }
+                className='h-11 border-white/10 bg-white/5 text-white/85'
+              />
             </div>
 
             {/* Code input */}

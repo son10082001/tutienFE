@@ -11,11 +11,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Edit2, Loader2, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { cn } from '@/lib/utils';
 import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
+import { useQueryClient } from '@tanstack/react-query';
+import { Check, ChevronLeft, ChevronRight, Edit2, Loader2, Search, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 function formatVND(n: number) {
   return `${new Intl.NumberFormat('vi-VN').format(n)}đ`;
@@ -23,12 +25,86 @@ function formatVND(n: number) {
 
 const PAGE_SIZE = 10;
 
+function ExternalItemSelector({
+  value,
+  items,
+  onChange,
+}: {
+  value: string;
+  items: Array<{ id: string; name: string }>;
+  onChange: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return items.slice(0, 80);
+    return items.filter((it) => it.name.toLowerCase().includes(s) || it.id.includes(s)).slice(0, 80);
+  }, [items, search]);
+
+  const selected = items.find((it) => it.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} modal={false}>
+      <PopoverTrigger asChild>
+        <button
+          type='button'
+          className={cn(
+            'flex h-10 w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white',
+            'hover:bg-white/10 focus:outline-none focus:ring-1 focus:ring-[#44C8F3]/50'
+          )}
+        >
+          <span className='truncate'>{selected ? `#${selected.id} - ${selected.name}` : '-- Chọn item --'}</span>
+          <Search size={14} className='ml-2 shrink-0 opacity-50' />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className='w-[340px] border-white/10 bg-[#0C111D] p-0 text-white' align='start'>
+        <div className='flex items-center border-b border-white/10 p-2'>
+          <Search size={14} className='mr-2 text-white/30' />
+          <input
+            className='flex-1 bg-transparent text-sm focus:outline-none'
+            placeholder='Tìm theo tên hoặc ID...'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className='max-h-64 overflow-y-auto p-1' onWheelCapture={(e) => e.stopPropagation()}>
+          {filtered.length === 0 && <div className='py-4 text-center text-xs text-white/30'>Không tìm thấy item</div>}
+          {filtered.map((it) => (
+            <button
+              key={it.id}
+              type='button'
+              onClick={() => {
+                onChange(it.id);
+                setOpen(false);
+                setSearch('');
+              }}
+              className={cn(
+                'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-[#44C8F3]/10',
+                it.id === value && 'bg-[#44C8F3]/20 text-[#44C8F3]'
+              )}
+            >
+              <div className='flex flex-col'>
+                <span className='font-medium'>{it.name}</span>
+                <span className='text-[10px] opacity-40'>ID: {it.id}</span>
+              </div>
+              {it.id === value && <Check size={14} />}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function AdminShopPage() {
   const queryClient = useQueryClient();
   const { data: shopRes, isLoading } = useAdminShopItems();
   const { data: extRes } = useAdminExternalItems();
   const extItems = extRes?.items ?? [];
 
+  const [createOpen, setCreateOpen] = useState(false);
   const [externalItemId, setExternalItemId] = useState('');
   const [itemName, setItemName] = useState('');
   const [itemQuantity, setItemQuantity] = useState('1');
@@ -36,6 +112,7 @@ export default function AdminShopPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [isUploadingCreateImage, setIsUploadingCreateImage] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingExternalItemId, setEditingExternalItemId] = useState('');
   const [editingName, setEditingName] = useState('');
   const [editingQuantity, setEditingQuantity] = useState('');
   const [editingPrice, setEditingPrice] = useState('');
@@ -54,20 +131,26 @@ export default function AdminShopPage() {
   const { mutate: createItem, isPending: creating } = useAdminCreateShopItem({
     onSuccess: () => {
       notifySuccess('Đã tạo', 'Sản phẩm đã thêm vào shop.');
-      queryClient.invalidateQueries({ queryKey: useAdminShopItems.getKey() });
+      queryClient.refetchQueries ({ queryKey: useAdminShopItems.getKey() });
+      setCreateOpen(false);
+      setExternalItemId('');
+      setItemName('');
+      setItemQuantity('1');
+      setPrice('10000');
+      setImageUrl('');
     },
     onError: (e) => notifyErrorFromUnknown(e),
   });
 
   const { mutate: updateItem, isPending: updating } = useAdminUpdateShopItem({
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: useAdminShopItems.getKey() }),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: useAdminShopItems.getKey() }),
     onError: (e) => notifyErrorFromUnknown(e),
   });
 
   const { mutate: deleteItem, isPending: deleting } = useAdminDeleteShopItem({
     onSuccess: () => {
       notifySuccess('Đã xóa', 'Sản phẩm đã được xóa.');
-      queryClient.invalidateQueries({ queryKey: useAdminShopItems.getKey() });
+      queryClient.refetchQueries ({ queryKey: useAdminShopItems.getKey() });
     },
     onError: (e) => notifyErrorFromUnknown(e),
   });
@@ -126,64 +209,14 @@ export default function AdminShopPage() {
 
   return (
     <div className='space-y-6 p-8'>
-      <div>
-        <h1 className='text-2xl font-bold text-white'>Quản lý Shop</h1>
-        <p className='mt-1 text-sm text-white/50'>Tạo sản phẩm bán cho user, bật/tắt và chỉnh sửa trực tiếp.</p>
-      </div>
-
-      <div className='grid gap-3 rounded-xl border border-white/10 bg-white/5 p-4 sm:grid-cols-2'>
-        <div className='space-y-1'>
-          <label className='text-xs text-white/60'>Item từ API ngoài</label>
-          <select
-            value={externalItemId}
-            onChange={(e) => {
-              const id = Number(e.target.value);
-              setExternalItemId(e.target.value);
-              if (id && !itemName.trim()) {
-                setItemName(itemNameById.get(id) ?? '');
-              }
-            }}
-            className='h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 text-sm text-white'
-          >
-            <option value=''>-- Chọn item --</option>
-            {extItems.map((it) => (
-              <option key={it.id} value={it.id}>
-                #{it.id} - {String(it.name).trim()}
-              </option>
-            ))}
-          </select>
+      <div className='flex items-center justify-between gap-3'>
+        <div>
+          <h1 className='text-2xl font-bold text-white'>Quản lý Shop</h1>
+          <p className='mt-1 text-sm text-white/50'>Tạo sản phẩm bán cho user, bật/tắt và chỉnh sửa trực tiếp.</p>
         </div>
-        <div className='space-y-1'>
-          <label className='text-xs text-white/60'>Tên item hiển thị</label>
-          <Input value={itemName} onChange={(e) => setItemName(e.target.value)} className='border-white/10 bg-white/5 text-white' />
-        </div>
-        <div className='space-y-1'>
-          <label className='text-xs text-white/60'>Số lượng tồn kho</label>
-          <Input value={itemQuantity} onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
-        </div>
-        <div className='space-y-1'>
-          <label className='text-xs text-white/60'>Giá (cho 1 sản phẩm)</label>
-          <Input value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
-        </div>
-        <div className='space-y-2 sm:col-span-2'>
-          <label className='text-xs text-white/60'>Ảnh sản phẩm</label>
-          <Input
-            type='file'
-            accept='image/*'
-            onChange={(e) => handleUploadCreateImage(e.target.files?.[0] ?? null)}
-            className='border-white/10 bg-white/5 text-white file:mr-3 file:rounded-md file:border-0 file:bg-[#44C8F3] file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black'
-          />
-          {isUploadingCreateImage && <p className='text-xs text-white/60'>Đang upload ảnh...</p>}
-          {imageUrl && (
-            <img src={imageUrl} alt='Preview' className='h-16 w-16 rounded border border-white/10 object-cover' />
-          )}
-        </div>
-        <div className='sm:col-span-2'>
-          <Button onClick={handleCreate} disabled={creating || isUploadingCreateImage} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
-            {creating && <Loader2 size={14} className='mr-2 animate-spin' />}
-            Tạo sản phẩm
-          </Button>
-        </div>
+        <Button onClick={() => setCreateOpen(true)} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
+          Tạo sản phẩm
+        </Button>
       </div>
 
       <div className='overflow-hidden rounded-xl border border-white/10'>
@@ -246,6 +279,7 @@ export default function AdminShopPage() {
                         className='inline-flex h-9 w-9 items-center justify-center rounded-md text-white/70 hover:bg-white/10 hover:text-white'
                         onClick={() => {
                           setEditingId(row.id);
+                          setEditingExternalItemId(String(row.externalItemId ?? ''));
                           setEditingName(row.itemName);
                           setEditingQuantity(String(row.itemQuantity));
                           setEditingPrice(String(row.price));
@@ -299,12 +333,84 @@ export default function AdminShopPage() {
         </div>
       )}
 
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className='border-white/10 bg-[#0C111D] text-white sm:max-w-xl'>
+          <DialogHeader>
+            <DialogTitle>Tạo sản phẩm mới</DialogTitle>
+          </DialogHeader>
+          <div className='grid gap-3 sm:grid-cols-2'>
+            <div className='space-y-1 sm:col-span-2'>
+              <label className='text-xs text-white/60'>Vật phẩm</label>
+              <ExternalItemSelector
+                value={externalItemId}
+                items={extItems.map((it) => ({ id: String(it.id), name: String(it.name).trim() }))}
+                onChange={(idStr) => {
+                  const id = Number(idStr);
+                  setExternalItemId(idStr);
+                  if (id && !itemName.trim()) {
+                    setItemName(itemNameById.get(id) ?? '');
+                  }
+                }}
+              />
+            </div>
+            <div className='space-y-1'>
+              <label className='text-xs text-white/60'>Tên item hiển thị</label>
+              <Input value={itemName} onChange={(e) => setItemName(e.target.value)} className='border-white/10 bg-white/5 text-white' />
+            </div>
+            <div className='space-y-1'>
+              <label className='text-xs text-white/60'>Số lượng tồn kho</label>
+              <Input value={itemQuantity} onChange={(e) => setItemQuantity(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+            </div>
+            <div className='space-y-1'>
+              <label className='text-xs text-white/60'>Giá (cho 1 sản phẩm)</label>
+              <Input value={price} onChange={(e) => setPrice(e.target.value.replace(/\D/g, ''))} className='border-white/10 bg-white/5 text-white' />
+            </div>
+            <div className='space-y-2 sm:col-span-2'>
+              <label className='text-xs text-white/60'>Ảnh sản phẩm</label>
+              <Input
+                type='file'
+                accept='image/*'
+                onChange={(e) => handleUploadCreateImage(e.target.files?.[0] ?? null)}
+                className='border-white/10 bg-white/5 text-white file:mr-3 file:rounded-md file:border-0 file:bg-[#44C8F3] file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black'
+              />
+              {isUploadingCreateImage && <p className='text-xs text-white/60'>Đang upload ảnh...</p>}
+              {imageUrl && (
+                <img src={imageUrl} alt='Preview' className='h-16 w-16 rounded border border-white/10 object-cover' />
+              )}
+            </div>
+            <div className='flex justify-end gap-2 pt-1 sm:col-span-2'>
+              <Button variant='ghost' className='text-white/70 hover:bg-white/10' onClick={() => setCreateOpen(false)}>
+                Hủy
+              </Button>
+              <Button onClick={handleCreate} disabled={creating || isUploadingCreateImage} className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'>
+                {creating && <Loader2 size={14} className='mr-2 animate-spin' />}
+                Tạo sản phẩm
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!editingId} onOpenChange={(v) => !v && setEditingId(null)}>
         <DialogContent className='border-white/10 bg-[#0C111D] text-white sm:max-w-md'>
           <DialogHeader>
             <DialogTitle>Chỉnh sửa sản phẩm</DialogTitle>
           </DialogHeader>
           <div className='space-y-3'>
+            <div className='space-y-1'>
+              <label className='text-xs text-white/60'>Vật phẩm</label>
+              <ExternalItemSelector
+                value={editingExternalItemId}
+                items={extItems.map((it) => ({ id: String(it.id), name: String(it.name).trim() }))}
+                onChange={(idStr) => {
+                  const id = Number(idStr);
+                  setEditingExternalItemId(idStr);
+                  if (id) {
+                    setEditingName(itemNameById.get(id) ?? '');
+                  }
+                }}
+              />
+            </div>
             <div className='space-y-1'>
               <label className='text-xs text-white/60'>Tên sản phẩm</label>
               <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} className='border-white/10 bg-white/5 text-white' />
@@ -341,9 +447,15 @@ export default function AdminShopPage() {
                 className='bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/85'
                 onClick={() => {
                   if (!editingId) return;
+                  const extId = Number(editingExternalItemId);
+                  if (!extId) {
+                    notifyErrorFromUnknown(new Error('Vui lòng chọn item từ danh sách API'));
+                    return;
+                  }
                   updateItem({
                     id: editingId,
                     payload: {
+                      externalItemId: extId,
                       itemName: editingName.trim(),
                       itemQuantity: Number(editingQuantity),
                       price: Number(editingPrice),

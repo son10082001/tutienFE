@@ -1,8 +1,45 @@
+'use client';
+
 import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
+import { getAccessToken } from '@/utils/auth';
+import { API_URL, GAME_LAUNCH_URL } from '@/utils/const';
+import {
+  buildGameLaunchUrlWithHandoff,
+  ensurePortalGameHandoffForLaunch,
+  readPortalGameHandoff,
+} from '@/utils/game-handoff';
+import { notifyError } from '@/utils/notify';
 
 const JoinNow = () => {
+  const user = useAuthStore((state) => state.user);
+
+  function handlePlayNow() {
+    try {
+      if (!GAME_LAUNCH_URL) {
+        notifyError('Không mở được game', 'Thiếu cấu hình URL mở game.');
+        return;
+      }
+      const portalUserId = user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
+      const token = getAccessToken();
+      if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {
+        notifyError('Không mở được game', 'Chưa liên kết phiên game với tài khoản web. Vui lòng đăng nhập lại.');
+        return;
+      }
+      const h = readPortalGameHandoff();
+      if (!h) {
+        notifyError('Không mở được game', 'Vui lòng đăng nhập lại.');
+        return;
+      }
+      const url = buildGameLaunchUrlWithHandoff(GAME_LAUNCH_URL, h.userId, h.password, h.deviceGroupId);
+      window.open(url, '_blank');
+    } catch {
+      notifyError('Không mở được game', 'Vui lòng đăng nhập lại.');
+    }
+  }
+
   return (
     <div className="relative flex h-screen max-h-[900px] w-full items-center justify-center bg-[url('/images/lp/bg1.png')] bg-center bg-no-repeat xl:max-h-screen xl:bg-cover">
       <div className='container flex flex-col items-center'>
@@ -12,6 +49,7 @@ const JoinNow = () => {
         </p>
 
         <button
+          onClick={handlePlayNow}
           className={cn(
             'relative h-[60px] w-[180px]',
             'font-bold text-white uppercase tracking-wider',

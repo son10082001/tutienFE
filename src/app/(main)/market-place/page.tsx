@@ -9,6 +9,7 @@ import { notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Loader2, ShoppingCart } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useAuthStore } from '@/stores/auth-store';
 
 function formatVND(n: number) {
   return `${new Intl.NumberFormat('vi-VN').format(n)}đ`;
@@ -18,8 +19,9 @@ const ITEMS_PER_PAGE = 12;
 const SEARCH_DEBOUNCE_MS = 350;
 
 export default function MarketPlacePage() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const queryClient = useQueryClient();
-  const { data: me } = useMe();
+  const { data: me } = useMe({ enabled: isAuthenticated });
   const [serverId, setServerId] = useState<number | null>(null);
   const [buyingItemId, setBuyingItemId] = useState<string | null>(null);
   const [buyQuantity, setBuyQuantity] = useState('1');
@@ -44,7 +46,7 @@ export default function MarketPlacePage() {
       sort: sortType,
     },
   });
-  const { data: meta } = useShopMeta();
+  const { data: meta } = useShopMeta({ enabled: isAuthenticated });
 
   const servers = meta?.servers ?? [];
   const characters = meta?.characters ?? [];
@@ -81,6 +83,10 @@ export default function MarketPlacePage() {
   }
 
   function handleBuy(itemId: string, qty: number) {
+    if (!isAuthenticated) {
+      notifyErrorFromUnknown(new Error('Vui lòng đăng nhập để mua vật phẩm'));
+      return;
+    }
     if (!resolvedServerId) {
       notifyErrorFromUnknown(new Error('Vui lòng chọn server'));
       return;
@@ -200,10 +206,14 @@ export default function MarketPlacePage() {
                         <div className='mt-2'>
                           <Button
                             onClick={() => {
+                              if (!isAuthenticated) {
+                                notifyErrorFromUnknown(new Error('Vui lòng đăng nhập để mua vật phẩm'));
+                                return;
+                              }
                               setBuyingItemId(item.id);
                               setBuyQuantity('1');
                             }}
-                            disabled={isPending || !selectedCharacter}
+                            disabled={isPending || !isAuthenticated || !selectedCharacter}
                             className='w-full bg-[#44C8F3] text-xs font-semibold text-black hover:bg-[#44C8F3]/85 disabled:opacity-50'
                           >
                             <ShoppingCart size={14} className='mr-1' /> Mua
@@ -287,6 +297,7 @@ export default function MarketPlacePage() {
               </p>
               {buyingItem.price * getQty() > balance && <p className='text-xs text-red-400'>Không đủ số dư</p>}
               {getQty() > buyingItem.itemQuantity && <p className='text-xs text-red-400'>Vượt quá tồn kho</p>}
+              {!isAuthenticated && <p className='text-xs text-yellow-400'>Vui lòng đăng nhập để mua vật phẩm</p>}
               <div className='flex gap-2'>
                 <Button
                   variant='outline'
@@ -302,6 +313,7 @@ export default function MarketPlacePage() {
                   onClick={() => handleBuy(buyingItem.id, getQty())}
                   disabled={
                     isPending ||
+                    !isAuthenticated ||
                     !selectedCharacter ||
                     buyingItem.price * getQty() > balance ||
                     getQty() > buyingItem.itemQuantity
