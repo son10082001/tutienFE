@@ -1,6 +1,6 @@
 import type { FirebaseBroadcastData, FirebaseSessionData } from './firebaseSync';
 import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
-import { getSessionWsBaseUrl } from '@/utils/const';
+import { WS_URL } from '@/utils/const';
 
 export const FIREBASE_PLATFORM_PORTAL = 'portal';
 export const FIREBASE_PLATFORM_GAME = 'game';
@@ -58,9 +58,8 @@ class WebSocketSyncService {
     try {
       const gid = getOrCreateDeviceGroupId();
       if (!gid) return null;
-      const base = getSessionWsBaseUrl();
-      const sep = base.includes('?') ? '&' : '?';
-      return `${base}${sep}gid=${encodeURIComponent(gid)}`;
+      const sep = WS_URL.includes('?') ? '&' : '?';
+      return `${WS_URL}${sep}gid=${encodeURIComponent(gid)}`;
     } catch {
       return null;
     }
