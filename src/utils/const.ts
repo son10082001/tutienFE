@@ -4,22 +4,36 @@ export const GAME_LAUNCH_URL =
   process.env.NEXT_PUBLIC_GAME_URL || 'http://172.20.10.2:7456/web-mobile/web-mobile/index.html';
 
 /**
- * URL WebSocket đồng bộ phiên (dùng khi SYNC_MODE === 'websocket').
- * Trỏ tới endpoint `attachSessionSyncWs` gắn trên tutien-be.
- * Trang HTTPS không được gọi `ws://` tới host khác — Mixed Content; dùng WSS khi deploy HTTPS.
+ * Trên trang HTTPS, trình duyệt chặn `ws://` (Mixed Content).
+ * Biến môi trường build thường vẫn là `ws://api...` — luôn nâng lên `wss://` khi `window` là HTTPS.
  */
-function resolvePublicWsUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_WS_URL?.trim();
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, '');
+function upgradeWsToWssIfHttpsPage(url: string): string {
+  if (typeof window === 'undefined' || window.location?.protocol !== 'https:') {
+    return url;
   }
-  if (typeof window !== 'undefined' && window.location?.protocol === 'https:') {
-    return 'wss://api.ngutienky.com/ws/session';
+  if (url.startsWith('ws:')) {
+    return `wss:${url.slice(3)}`;
   }
-  return 'ws://localhost:4000/ws/session';
+  return url;
 }
 
-export const WS_URL = resolvePublicWsUrl();
+/**
+ * URL WebSocket đồng bộ phiên (dùng khi SYNC_MODE === 'websocket').
+ * Gọi tại lúc mở socket — tránh dùng một hằng `WS_URL` bake sẵn `ws://` khi deploy HTTPS.
+ */
+export function getSessionWsBaseUrl(): string {
+  let base = (process.env.NEXT_PUBLIC_WS_URL ?? '').trim().replace(/\/$/, '');
+  if (!base) {
+    base =
+      typeof window !== 'undefined' && window.location?.protocol === 'https:'
+        ? 'wss://api.ngutienky.com/ws/session'
+        : 'ws://localhost:4000/ws/session';
+  }
+  return upgradeWsToWssIfHttpsPage(base);
+}
+
+/** Giữ tương thích import cũ; khi mở socket nên dùng `getSessionWsBaseUrl()` để luôn đúng theo giao thức trang. */
+export const WS_URL = getSessionWsBaseUrl();
 
 /**
  * Chế độ đồng bộ phiên portal ↔ game.
