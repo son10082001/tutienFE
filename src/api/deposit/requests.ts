@@ -5,6 +5,7 @@ import type {
   DepositListResponse,
   DepositPromotionListResponse,
   DepositPromotionResponse,
+  DepositOptionsResponse,
   DepositPromotionRow,
   DepositRequest,
   UpdateDepositAdminInput,
@@ -22,6 +23,11 @@ export const getMyDeposits = async (page = 1, limit = 10): Promise<DepositListRe
 
 export const getDepositPromotion = async (): Promise<DepositPromotionResponse> => {
   const res = await axiosInstance.get<DepositPromotionResponse>('/deposit/promotion');
+  return res.data;
+};
+
+export const getDepositOptions = async (): Promise<DepositOptionsResponse> => {
+  const res = await axiosInstance.get<DepositOptionsResponse>('/deposit/options');
   return res.data;
 };
 

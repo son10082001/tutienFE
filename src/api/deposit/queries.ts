@@ -9,6 +9,7 @@ import {
   adminUpdateDeposit,
   createDepositRequest,
   getDepositPromotion,
+  getDepositOptions,
   getMyDeposits,
 } from './requests';
 import type {
@@ -43,6 +44,11 @@ export const useCreateDeposit = createMutation({
 export const useDepositPromotion = createQuery<DepositPromotionResponse, void, Error>({
   primaryKey: 'deposit-promotion',
   queryFn: () => getDepositPromotion(),
+});
+
+export const useDepositOptions = createQuery({
+  primaryKey: 'deposit-options',
+  queryFn: () => getDepositOptions(),
 });
 
 export const useAdminDepositPromotions = createQuery<DepositPromotionListResponse, void, Error>({

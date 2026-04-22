@@ -46,6 +46,8 @@ const LoginPage = () => {
         email: data?.user?.email,
         name: data?.user?.name,
         role: data?.user?.role,
+        adminRole: data?.user?.adminRole ?? null,
+        permissions: data?.user?.permissions ?? [],
         type: data?.user?.type,
         kycStatus: data?.user?.kycStatus ?? 'none',
       } as UserInfoResponse;

@@ -1,7 +1,7 @@
 'use client';
 
 import type { DepositRequest, DepositStatus } from '@/api/deposit';
-import { useCreateDeposit, useDepositPromotion, useMyDeposits } from '@/api/deposit';
+import { useCreateDeposit, useDepositOptions, useDepositPromotion, useMyDeposits } from '@/api/deposit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -19,13 +19,9 @@ import {
   XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const VIETCOMBANK_ACCOUNT = '0461000633851';
-const VIETCOMBANK_NAME = 'TU%20TIEN%20KIEM%20HIEP';
-const MOMO_PHONE = '0961795312';
 
 const AMOUNT_PRESETS = [
   { label: '10K', value: 10_000 },
@@ -70,29 +66,45 @@ function formatDate(iso: string) {
   });
 }
 
-function getVietQRUrl(amount: number, note: string) {
-  return `https://img.vietqr.io/image/VCB-${VIETCOMBANK_ACCOUNT}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(note)}&accountName=${VIETCOMBANK_NAME}`;
-}
-
-function getMoMoQRUrl(amount: number, note: string) {
-  return `https://momosv3.apimienphi.com/api/QRCode?phone=${MOMO_PHONE}&amount=${amount}&note=${encodeURIComponent(note)}`;
+function buildQrUrl(template: string | null | undefined, vars: Record<string, string | number>) {
+  if (!template) return '';
+  return template.replace(/\{(\w+)\}/g, (_, key: string) => encodeURIComponent(String(vars[key] ?? '')));
 }
 
 // ─── QR Panel ─────────────────────────────────────────────────────────────────
 
 function QRPanel({
-  method,
+  methodName,
+  bankCode,
+  accountName,
+  accountNumber,
+  phoneNumber,
+  bankName,
   amount,
   note,
+  qrTemplate,
   bonusAmount = 0,
 }: {
-  method: 'vietqr' | 'momo';
+  methodName: string;
+  bankCode?: string | null;
+  accountName?: string | null;
+  accountNumber?: string | null;
+  phoneNumber?: string | null;
+  bankName?: string | null;
   amount: number;
   note: string;
+  qrTemplate?: string | null;
   bonusAmount?: number;
 }) {
-  const url = method === 'vietqr' ? getVietQRUrl(amount, note) : getMoMoQRUrl(amount, note);
-  const isVietQR = method === 'vietqr';
+  const url = buildQrUrl(qrTemplate, {
+    amount,
+    note,
+    bankCode: bankCode ?? '',
+    accountName: accountName ?? '',
+    accountNumber: accountNumber ?? '',
+    phoneNumber: phoneNumber ?? '',
+    bankName: bankName ?? '',
+  });
 
   return (
     <div className='flex flex-col items-center gap-4'>
@@ -107,17 +119,11 @@ function QRPanel({
         />
       </div>
       <div className='w-full rounded-xl border border-white/10 bg-white/5 p-4 space-y-2 text-sm'>
-        {isVietQR ? (
-          <>
-            <Row label='Ngân hàng' value='Vietcombank (VCB)' />
-            <Row label='Số tài khoản' value={VIETCOMBANK_ACCOUNT} mono />
-            <Row label='Chủ tài khoản' value='TU TIEN KIEM HIEP' />
-          </>
-        ) : (
-          <>
-            <Row label='Ví MoMo' value={MOMO_PHONE} mono />
-          </>
-        )}
+        <Row label='Phương thức' value={methodName} />
+        {bankName ? <Row label='Ngân hàng' value={bankName} /> : null}
+        {accountNumber ? <Row label='Số tài khoản' value={accountNumber} mono /> : null}
+        {accountName ? <Row label='Chủ tài khoản' value={accountName} /> : null}
+        {phoneNumber ? <Row label='Số điện thoại' value={phoneNumber} mono /> : null}
         <Row label='Số tiền chuyển' value={formatVND(amount)} highlight />
         {bonusAmount > 0 && (
           <>
@@ -129,7 +135,7 @@ function QRPanel({
         {/* <Row label='Nội dung CK' value={note} mono /> */}
       </div>
       <p className='text-center text-xs text-white/30'>
-        Quét mã QR bằng app {isVietQR ? 'ngân hàng / VietQR' : 'MoMo'} để chuyển tiền
+        Quét mã QR theo phương thức đã chọn để chuyển tiền
       </p>
     </div>
   );
@@ -210,7 +216,7 @@ function HistoryTab() {
                   </p>
                 )}
                 <p className='font-mono text-xs text-[#44C8F3]/90'>{item.note}</p>
-                <p className='text-xs text-white/40'>{item.method === 'vietqr' ? 'VietQR' : 'MoMo'}</p>
+                <p className='text-xs text-white/40'>{item.method}</p>
                 <p className='text-xs text-white/30'>{formatDate(item.createdAt)}</p>
                 {item.adminNote && <p className='text-xs text-red-400'>{item.adminNote}</p>}
               </div>
@@ -262,11 +268,11 @@ function HistoryTab() {
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
 type Tab = 'deposit' | 'history';
-type Method = 'vietqr' | 'momo';
+type Method = string;
 
 export default function DepositPage() {
   const [tab, setTab] = useState<Tab>('deposit');
-  const [method, setMethod] = useState<Method>('vietqr');
+  const [method, setMethod] = useState<Method>('');
   const [amount, setAmount] = useState<number>(100_000);
   const [amountInput, setAmountInput] = useState('100000');
   const [showQR, setShowQR] = useState(false);
@@ -274,6 +280,10 @@ export default function DepositPage() {
   const [activeDeposit, setActiveDeposit] = useState<DepositRequest | null>(null);
 
   const { data: promoRes } = useDepositPromotion();
+  const { data: optionsRes } = useDepositOptions();
+  const paymentMethods = optionsRes?.methods ?? [];
+  const selectedMethod = useMemo(() => paymentMethods.find((m) => m.code === method) ?? null, [paymentMethods, method]);
+  const selectedBank = useMemo(() => (selectedMethod?.banks?.[0] ?? null), [selectedMethod]);
   const activePromo = promoRes?.active ?? null;
   const previewBonus = activePromo && amount >= 10_000 ? Math.floor((amount * activePromo.percent) / 100) : 0;
 
@@ -281,6 +291,12 @@ export default function DepositPage() {
   const { mutate: createDeposit, isPending } = useCreateDeposit({
     onError: (err) => notifyErrorFromUnknown(err),
   });
+
+  useEffect(() => {
+    if (!method && paymentMethods.length > 0) {
+      setMethod(paymentMethods[0]!.code);
+    }
+  }, [method, paymentMethods]);
 
   const transferNote = (() => {
     const raw = (activeDeposit?.note ?? '').toUpperCase();
@@ -310,6 +326,10 @@ export default function DepositPage() {
   function handleShowQR() {
     if (!amount || amount < 10_000) {
       notifyError('Số tiền không hợp lệ', 'Số tiền tối thiểu là 10.000đ');
+      return;
+    }
+    if (!method) {
+      notifyError('Thiếu phương thức', 'Vui lòng chọn phương thức thanh toán');
       return;
     }
     createDeposit(
@@ -389,41 +409,47 @@ export default function DepositPage() {
             <div className='space-y-2'>
               <p className='text-sm font-medium text-white/70'>Phương thức nạp</p>
               <div className='grid grid-cols-2 gap-3'>
-                {(
-                  [
-                    ['vietqr', 'VietQR'],
-                    ['momo', 'MoMo'],
-                  ] as [Method, string][]
-                ).map(([m, label]) => (
+                {paymentMethods.map((m) => {
+                  const methodCode = m.code.toLowerCase();
+                  const logoSrc =
+                    methodCode === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg';
+                  return (
                   <button
-                    key={m}
+                    key={m.code}
                     type='button'
                     onClick={() => {
-                      setMethod(m);
+                      setMethod(m.code);
                       setShowQR(false);
                       setSubmitted(false);
                       setActiveDeposit(null);
                     }}
                     className={cn(
                       'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
-                      method === m
+                      method === m.code
                         ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
                         : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
                     )}
                   >
                     <Image
-                      src={m === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg'}
-                      alt={label}
+                      src={logoSrc}
+                      alt={m.name}
                       width={36}
                       height={36}
                       className='rounded-lg object-contain'
+                      onError={(e) => {
+                        if (methodCode === 'vietqr') {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = '/images/logo-bank/vietqr.svg';
+                        }
+                      }}
                     />
                     <div>
-                      <p className='font-semibold text-sm'>{label}</p>
-                      <p className='text-xs opacity-60'>{m === 'vietqr' ? 'Vietcombank' : `SĐT ${MOMO_PHONE}`}</p>
+                      <p className='font-semibold text-sm'>{m.name}</p>
+                      <p className='text-xs opacity-60'>{m.code}</p>
                     </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -498,9 +524,15 @@ export default function DepositPage() {
             {showQR && activeDeposit && (
               <div className='space-y-4'>
                 <QRPanel
-                  method={method}
+                  methodName={selectedMethod?.name ?? method}
+                  bankCode={selectedBank?.code ?? null}
+                  accountName={selectedBank?.accountName ?? selectedMethod?.accountName}
+                  accountNumber={selectedBank?.accountNumber ?? selectedMethod?.accountNumber}
+                  phoneNumber={selectedMethod?.phoneNumber}
+                  bankName={selectedBank?.name ?? null}
                   amount={amount}
                   note={transferNote}
+                  qrTemplate={selectedMethod?.qrTemplate}
                   bonusAmount={activeDeposit.bonusAmount ?? 0}
                 />
 

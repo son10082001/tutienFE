@@ -1,0 +1,8 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="40" fill="#0EA5E9"/>
+  <rect x="26" y="26" width="204" height="204" rx="28" fill="white"/>
+  <path d="M75 90H100L128 166L156 90H181L138 194H118L75 90Z" fill="#0EA5E9"/>
+  <path d="M89 66C89 58.268 95.268 52 103 52H153C160.732 52 167 58.268 167 66V72H89V66Z" fill="#0284C7"/>
+  <path d="M89 184H167V190C167 197.732 160.732 204 153 204H103C95.268 204 89 197.732 89 190V184Z" fill="#0284C7"/>
+  <text x="128" y="142" text-anchor="middle" fill="#0369A1" font-size="22" font-family="Arial, Helvetica, sans-serif" font-weight="700">VietQR</text>
+</svg>

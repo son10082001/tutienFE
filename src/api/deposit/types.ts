@@ -1,4 +1,4 @@
-export type DepositMethod = 'vietqr' | 'momo';
+export type DepositMethod = string;
 export type DepositStatus = 'pending' | 'approved' | 'rejected';
 
 export interface DepositRequest {
@@ -58,6 +58,39 @@ export interface CreateDepositInput {
   /** Không dùng — BE gán nội dung CK `NGUTIENKY+{id}`. */
   note?: string;
   server: string;
+}
+
+export interface DepositOptionServer {
+  id: string;
+  code: string;
+  name: string;
+  host: string | null;
+  isActive: boolean;
+}
+
+export interface DepositOptionBank {
+  code: string;
+  name: string;
+  accountName: string | null;
+  accountNumber: string | null;
+}
+
+export interface DepositOptionMethod {
+  id: string;
+  code: string;
+  name: string;
+  channel: 'bank_transfer' | 'ewallet';
+  accountName: string | null;
+  accountNumber: string | null;
+  phoneNumber: string | null;
+  qrTemplate: string | null;
+  banks?: DepositOptionBank[] | null;
+  isActive: boolean;
+}
+
+export interface DepositOptionsResponse {
+  servers: DepositOptionServer[];
+  methods: DepositOptionMethod[];
 }
 
 export interface UpdateDepositAdminInput {

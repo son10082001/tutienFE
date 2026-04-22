@@ -12,7 +12,10 @@ import {
   Menu,
   Newspaper,
   Percent,
+  Phone,
+  Settings,
   ShoppingBag,
+  Shield,
   Users,
   X,
 } from 'lucide-react';
@@ -21,19 +24,28 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { label: 'Người dùng', href: ROUTES.ADMIN_USERS, icon: Users },
-  { label: 'Nạp tiền', href: ROUTES.ADMIN_DEPOSIT, icon: CreditCard },
-  { label: 'KM nạp tiền', href: ROUTES.ADMIN_DEPOSIT_PROMOTION, icon: Percent },
-  { label: 'Shop', href: ROUTES.ADMIN_SHOP, icon: ShoppingBag },
-  { label: 'Gift Code', href: ROUTES.ADMIN_GIFT_CODE, icon: Gift },
-  { label: 'Tin tức', href: ROUTES.ADMIN_NEWS, icon: Newspaper },
+  { label: 'Dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard, permission: 'dashboard.view' },
+  { label: 'Người dùng', href: ROUTES.ADMIN_USERS, icon: Users, permission: 'users.view' },
+  { label: 'Nạp tiền', href: ROUTES.ADMIN_DEPOSIT, icon: CreditCard, permission: 'deposits.view' },
+  { label: 'KM nạp tiền', href: ROUTES.ADMIN_DEPOSIT_PROMOTION, icon: Percent, permission: 'promotions.manage' },
+  { label: 'Shop', href: ROUTES.ADMIN_SHOP, icon: ShoppingBag, permission: 'shop.manage' },
+  { label: 'Gift Code', href: ROUTES.ADMIN_GIFT_CODE, icon: Gift, permission: 'giftcode.manage' },
+  { label: 'Tin tức', href: ROUTES.ADMIN_NEWS, icon: Newspaper, permission: 'news.manage' },
+  { label: 'Quản lý admin', href: ROUTES.ADMIN_ADMINS, icon: Shield, permission: 'admins.manage' },
+  { label: 'Kênh CSKH', href: ROUTES.ADMIN_SUPPORT_CHANNELS, icon: Phone, permission: '__admin_only__' },
+  { label: 'Cài đặt', href: ROUTES.ADMIN_SETTINGS, icon: Settings, permission: 'settings.manage' },
 ];
 
 function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = usePathname();
   const { handleLogout, isPending } = useLogout();
   const user = useAuthStore((s) => s.user);
+  const permissions = user?.permissions ?? [];
+  const isSuperAdmin = user?.adminRole === 'SUPERADMIN';
+  const navItems = NAV_ITEMS.filter((item) => {
+    if (item.permission === '__admin_only__') return true;
+    return isSuperAdmin || permissions.includes(item.permission);
+  });
 
   return (
     <aside
@@ -60,13 +72,13 @@ function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: (
       {!collapsed && (
         <div className='border-b border-white/10 px-4 py-4'>
           <p className='truncate font-semibold text-sm text-white'>{user?.name || user?.userId || 'Admin'}</p>
-          <p className='mt-0.5 text-xs text-white/40'>Quản trị viên</p>
+          <p className='mt-0.5 text-xs text-white/40'>{user?.adminRole || 'ADMIN'}</p>
         </div>
       )}
 
       {/* Nav */}
       <nav className='flex-1 space-y-1 px-2 py-4'>
-        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+        {navItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href;
           return (
             <Link

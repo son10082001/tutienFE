@@ -16,7 +16,6 @@ export function middleware(request: NextRequest) {
       try {
         cookieValue = decodeURIComponent(cookieValue);
       } catch {
-        // use original value if decode fails
       }
       const parsedData = JSON.parse(cookieValue);
       const state = parsedData?.state || {};
@@ -30,6 +29,23 @@ export function middleware(request: NextRequest) {
 
   const normalizedRole = (role || '').toUpperCase();
   const isAdmin = normalizedRole === 'ADMIN';
+  let permissions: string[] = [];
+  let adminRole = '';
+  try {
+    const authData = request.cookies.get(COOKIE_KEY);
+    if (authData?.value) {
+      let cookieValue = authData.value;
+      try {
+        cookieValue = decodeURIComponent(cookieValue);
+      } catch {
+      }
+      const parsedData = JSON.parse(cookieValue);
+      const state = parsedData?.state || {};
+      permissions = Array.isArray(state.user?.permissions) ? state.user.permissions : [];
+      adminRole = String(state.user?.adminRole || '').toUpperCase();
+    }
+  } catch {
+  }
 
   const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS];
   const isPublicPage = publicPages.includes(pathname);
@@ -38,9 +54,20 @@ export function middleware(request: NextRequest) {
   const isAuthPage = authPages.includes(pathname);
 
   const isAdminPage = pathname.startsWith('/admin');
+  const routePermissionMap: Record<string, string> = {
+    '/admin/dashboard': 'dashboard.view',
+    '/admin/users': 'users.view',
+    '/admin/deposit': 'deposits.view',
+    '/admin/deposit-promotion': 'promotions.manage',
+    '/admin/shop': 'shop.manage',
+    '/admin/gift-code': 'giftcode.manage',
+    '/admin/news': 'news.manage',
+    '/admin/admins': 'admins.manage',
+    '/admin/support-channels': 'dashboard.view',
+    '/admin/settings': 'settings.manage',
+  };
 
-  // 1. Admin đã login: bất kể ở đâu (kể cả public page) đều redirect về /admin
-  //    Ngoại trừ đang ở trang auth (xử lý riêng bên dưới) hoặc đã ở trong /admin
+
   if (isAuthenticated && isAdmin && !isAdminPage && !isAuthPage) {
     return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url));
   }
@@ -69,6 +96,16 @@ export function middleware(request: NextRequest) {
   // 5. User thường cố vào /admin → redirect về home
   if (!isAdmin && isAdminPage) {
     return NextResponse.redirect(new URL(ROUTES.HOME, request.url));
+  }
+
+  if (isAdminPage && isAdmin && adminRole !== 'SUPERADMIN') {
+    if (pathname.startsWith('/admin/support-channels')) {
+      return NextResponse.next();
+    }
+    const required = Object.entries(routePermissionMap).find(([prefix]) => pathname.startsWith(prefix))?.[1];
+    if (required && !permissions.includes(required)) {
+      return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url));
+    }
   }
 
   return NextResponse.next();

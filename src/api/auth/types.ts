@@ -27,6 +27,8 @@ export interface UserInfoResponse {
   phone?: string | null;
   name?: string;
   role: string;
+  adminRole?: 'SUPERADMIN' | 'OPERATOR' | 'ADVERTISER' | null;
+  permissions?: string[];
   type?: number;
   balance?: number;
   ticketBalance?: number;

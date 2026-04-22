@@ -36,17 +36,6 @@ const STATUS_CONFIG: Record<DepositStatus, { label: string; className: string }>
   rejected: { label: 'Từ chối', className: 'bg-red-500/15 text-red-400' },
 };
 
-const METHOD_LABEL: Record<string, string> = {
-  vietqr: 'VietQR',
-  momo: 'MoMo',
-};
-
-const SERVER_LABEL: Record<string, string> = {
-  sv1: 'Server 1',
-  sv2: 'Server 2',
-  sv3: 'Server 3',
-};
-
 const updateDepositSchema = z.object({
   amount: z.number().int().min(1000, 'Số tiền tối thiểu 1.000đ').optional(),
   note: z
@@ -444,7 +433,7 @@ export default function AdminDepositPage() {
                   </TableCell>
                   <TableCell className='font-mono text-xs text-white/80'>{item.userId}</TableCell>
                   <TableCell className='font-semibold text-[#44C8F3]'>{formatVND(item.amount)}</TableCell>
-                  <TableCell className='text-white/70'>{METHOD_LABEL[item.method] ?? item.method}</TableCell>
+                  <TableCell className='text-white/70'>{item.method}</TableCell>
                   {/* <TableCell className='text-white/70'>{SERVER_LABEL[item.server] ?? item.server}</TableCell> */}
                   <TableCell>
                     <span
