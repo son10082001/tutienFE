@@ -6,8 +6,20 @@ export const GAME_LAUNCH_URL =
 /**
  * URL WebSocket đồng bộ phiên (dùng khi SYNC_MODE === 'websocket').
  * Trỏ tới endpoint `attachSessionSyncWs` gắn trên tutien-be.
+ * Trang HTTPS không được gọi `ws://` tới host khác — Mixed Content; dùng WSS khi deploy HTTPS.
  */
-export const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws/session';
+function resolvePublicWsUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_WS_URL?.trim();
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location?.protocol === 'https:') {
+    return 'wss://api.ngutienky.com/ws/session';
+  }
+  return 'ws://localhost:4000/ws/session';
+}
+
+export const WS_URL = resolvePublicWsUrl();
 
 /**
  * Chế độ đồng bộ phiên portal ↔ game.
