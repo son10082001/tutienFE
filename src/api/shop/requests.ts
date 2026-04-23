@@ -1,3 +1,4 @@
+import { API_URL } from '@/utils/const';
 import { axiosInstance } from '../axios';
 import type {
   BuyShopItemInput,
@@ -11,9 +12,46 @@ import type {
   UploadShopImageResponse,
 } from './types';
 
+const API_BASE_ORIGIN = (() => {
+  try {
+    return new URL(API_URL).origin;
+  } catch {
+    return 'https://api.ngutienky.com';
+  }
+})();
+
+function normalizeShopImageUrl(rawUrl?: string | null): string | null {
+  const value = rawUrl?.trim();
+  if (!value) return null;
+
+  if (value.startsWith('/')) {
+    return `${API_BASE_ORIGIN}${value}`;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      return `${API_BASE_ORIGIN}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+    return parsed.toString();
+  } catch {
+    return value;
+  }
+}
+
+function normalizeShopItemImage(item: ShopItem): ShopItem {
+  return {
+    ...item,
+    imageUrl: normalizeShopImageUrl(item.imageUrl),
+  };
+}
+
 export const adminListShopItems = async (): Promise<{ items: ShopItem[] }> => {
   const { data } = await axiosInstance.get('/admin/shop/items');
-  return data;
+  return {
+    ...data,
+    items: Array.isArray(data?.items) ? data.items.map(normalizeShopItemImage) : [],
+  };
 };
 
 export const adminListExternalItems = async (): Promise<{ items: ExternalItem[] }> => {
@@ -23,12 +61,12 @@ export const adminListExternalItems = async (): Promise<{ items: ExternalItem[] 
 
 export const adminCreateShopItem = async (payload: CreateShopItemInput): Promise<ShopItem> => {
   const { data } = await axiosInstance.post('/admin/shop/items', payload);
-  return data;
+  return normalizeShopItemImage(data);
 };
 
 export const adminUpdateShopItem = async (id: string, payload: UpdateShopItemInput): Promise<ShopItem> => {
   const { data } = await axiosInstance.patch(`/admin/shop/items/${encodeURIComponent(id)}`, payload);
-  return data;
+  return normalizeShopItemImage(data);
 };
 
 export const adminDeleteShopItem = async (id: string): Promise<{ message: string }> => {
@@ -42,12 +80,18 @@ export const adminUploadShopImage = async (file: File): Promise<UploadShopImageR
   const { data } = await axiosInstance.post('/admin/shop/upload-image', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return data;
+  return {
+    ...data,
+    url: normalizeShopImageUrl(data?.url) ?? '',
+  };
 };
 
 export const listShopItems = async (params: ShopItemsQuery): Promise<ShopItemsResponse> => {
   const { data } = await axiosInstance.get('/shop/items', { params });
-  return data;
+  return {
+    ...data,
+    items: Array.isArray(data?.items) ? data.items.map(normalizeShopItemImage) : [],
+  };
 };
 
 export const getShopMeta = async (): Promise<ShopMeta> => {

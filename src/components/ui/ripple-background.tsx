@@ -46,6 +46,20 @@ const loadRippleScript = (callback: () => void) => {
   }
 };
 
+const supportsRippleWebGL = () => {
+  if (typeof window === 'undefined') return false;
+
+  const canvas = document.createElement('canvas');
+  const gl =
+    (canvas.getContext('webgl') as WebGLRenderingContext | null) ||
+    (canvas.getContext('experimental-webgl') as WebGLRenderingContext | null);
+
+  if (!gl) return false;
+
+  // jquery.ripples requires floating point texture support.
+  return !!gl.getExtension('OES_texture_float');
+};
+
 const RippleBackground: React.FC<RippleBackgroundProps> = ({
   image,
   intensity = 3,
@@ -58,6 +72,8 @@ const RippleBackground: React.FC<RippleBackgroundProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
+    if (!supportsRippleWebGL()) return;
+
     let active = true;
     let observer: IntersectionObserver | null = null;
 
@@ -102,12 +118,17 @@ const RippleBackground: React.FC<RippleBackgroundProps> = ({
         $el.ripples('destroy');
       } catch (e) {}
 
-      $el.ripples({
-        resolution: 512,
-        dropRadius: rippleSize,
-        perturbance: 0.01 + (intensity / 100) * 0.05,
-        interactive: true,
-      });
+      try {
+        $el.ripples({
+          resolution: 512,
+          dropRadius: rippleSize,
+          perturbance: 0.01 + (intensity / 100) * 0.05,
+          interactive: true,
+        });
+      } catch (error) {
+        console.warn('Ripples effect is disabled: WebGL float textures are unsupported.', error);
+        return;
+      }
 
       if (!document.hidden) startInterval();
       document.addEventListener('visibilitychange', handleVisibility);

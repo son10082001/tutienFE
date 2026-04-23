@@ -1,6 +1,7 @@
 'use client';
 
 import { ROUTES } from '@/lib/routes';
+import { useAuthStore } from '@/stores/auth-store';
 import { cn } from '@/lib/utils';
 import { Coins, Home, Repeat, Store } from 'lucide-react';
 import Link from 'next/link';
@@ -15,6 +16,11 @@ const NAV_ITEMS = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const isActive = (href: string) => {
     if (!pathname) return false;
