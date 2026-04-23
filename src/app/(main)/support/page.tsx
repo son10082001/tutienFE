@@ -1,10 +1,8 @@
 'use client';
 
 import { useSupportMeta } from '@/api/support';
-import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/auth-store';
 import { Clock3, Headset, Loader2, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
 
 export default function SupportPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -42,15 +40,7 @@ export default function SupportPage() {
           </div>
         </div>
 
-        {!isAuthenticated ? (
-          <div className='rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100'>
-            Bạn cần đăng nhập để sử dụng đầy đủ tính năng chăm sóc khách hàng.{' '}
-            <Link href={ROUTES.LOGIN} className='font-semibold text-amber-300 underline'>
-              Đăng nhập ngay
-            </Link>
-            .
-          </div>
-        ) : null}
+    
 
         <section className='space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4'>
           <h2 className='font-semibold text-white'>Kênh liên hệ</h2>

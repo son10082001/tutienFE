@@ -27,8 +27,10 @@ export interface AdminUserGameMeta {
 
 export interface AdminSendItemMailPayload {
   serverId: number;
-  externalItemId: number;
-  quantity: number;
+  items: Array<{
+    externalItemId: number;
+    quantity: number;
+  }>;
 }
 
 export interface AdminUserListResponse {

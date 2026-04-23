@@ -5,14 +5,15 @@ import { PasswordField, TextField } from '@/components/form';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { ROUTES } from '@/lib/routes';
-import { useAuthStore } from '@/stores/auth-store';
-import { savePortalGameLoginSession, setPortalGameHandoff } from '@/utils/game-handoff';
-import { API_URL } from '@/utils/const';
-import { onMutateError } from '@/utils/common';
 import { sessionSync } from '@/lib/sessionSync';
+import { useAuthStore } from '@/stores/auth-store';
+import { onMutateError } from '@/utils/common';
+import { API_URL } from '@/utils/const';
+import { savePortalGameLoginSession, setPortalGameHandoff } from '@/utils/game-handoff';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, User } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -31,15 +32,15 @@ const LoginPage = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: 'onChange',
+    defaultValues: {
+      userId: '',
+      password: '',
+    },
   });
 
   const { mutate: signInMutation, isPending: isSignInPending } = useMutation({
     mutationFn: signIn,
     onSuccess: (data, variables) => {
-      setPortalGameHandoff(variables.userId, variables.password, data.accessToken, API_URL);
-      savePortalGameLoginSession(variables.userId, variables.password);
-      sessionSync.reportLogin(variables.userId, variables.password);
-
       const userInfo = {
         id: data?.user?.id,
         userId: data?.user?.userId,
@@ -53,6 +54,16 @@ const LoginPage = () => {
       } as UserInfoResponse;
 
       login(data.accessToken, '', userInfo);
+
+      // Các tác vụ đồng bộ phiên/handoff là "best effort".
+      // Nếu môi trường mobile chặn storage/socket tạm thời, vẫn cho login thành công.
+      try {
+        setPortalGameHandoff(variables.userId, variables.password, data.accessToken, API_URL);
+        savePortalGameLoginSession(variables.userId, variables.password);
+        sessionSync.reportLogin(variables.userId, variables.password);
+      } catch (syncError) {
+        console.warn('[Login] post-login sync failed:', syncError);
+      }
 
       if (data?.user?.role === 'ADMIN') {
         router.push(ROUTES.ADMIN_DASHBOARD);
@@ -99,9 +110,14 @@ const LoginPage = () => {
 
                 {/* Logo */}
                 <div className='flex flex-col items-center gap-2'>
-                  <div className='flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-2xl shadow-lg shadow-yellow-400/40'>
-                    🗡️
-                  </div>
+                <Image
+            src='/images/logo-header.png'
+            alt='logo'
+            width={100}
+            height={100}
+            className='h-[80px] w-auto cursor-pointer sm:h-[135px]'
+            onClick={() => router.push('/')}
+          />
 
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
                     NGƯ TIÊN KÝ

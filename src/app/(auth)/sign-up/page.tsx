@@ -9,6 +9,7 @@ import { onMutateError } from '@/utils/common';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, User } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -82,9 +83,14 @@ export default function SignUpPage() {
                 </button>
 
                 <div className='flex flex-col items-center gap-2'>
-                  <div className='flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-2xl shadow-lg shadow-yellow-400/40'>
-                    🗡️
-                  </div>
+                <Image
+            src='/images/logo-header.png'
+            alt='logo'
+            width={100}
+            height={100}
+            className='h-[80px] w-auto cursor-pointer sm:h-[135px]'
+            onClick={() => router.push('/')}
+          />
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
                     NGƯ TIÊN KÝ
                   </h2>

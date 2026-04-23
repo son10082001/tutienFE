@@ -48,7 +48,9 @@ export function middleware(request: NextRequest) {
   }
 
   const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS];
-  const isPublicPage = publicPages.includes(pathname);
+  const publicPathPrefixes = [`${ROUTES.NEWS}/`, `${ROUTES.SUPPORT}/`];
+  const isPublicPage =
+    publicPages.includes(pathname) || publicPathPrefixes.some((prefix) => pathname.startsWith(prefix));
 
   const authPages = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];
   const isAuthPage = authPages.includes(pathname);

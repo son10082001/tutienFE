@@ -102,14 +102,14 @@ function ExternalItemSelector({
 }
 
 export default function AdminUsersPage() {
+  const createEmptySendItem = () => ({ externalItemId: '', quantity: '1' });
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState<AdminUserRow | null>(null);
   const [sendingFor, setSendingFor] = useState<AdminUserRow | null>(null);
   const [sendServerId, setSendServerId] = useState<number | ''>('');
-  const [externalItemId, setExternalItemId] = useState('');
-  const [sendQuantity, setSendQuantity] = useState('1');
+  const [sendItems, setSendItems] = useState<Array<{ externalItemId: string; quantity: string }>>([createEmptySendItem()]);
 
   const user = useAuthStore((s) => s.user);
   const permissions = user?.permissions ?? [];
@@ -169,8 +169,7 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (!sendingFor) {
       setSendServerId('');
-      setExternalItemId('');
-      setSendQuantity('1');
+      setSendItems([createEmptySendItem()]);
       return;
     }
     const first = gameMeta?.characters?.[0];
@@ -197,20 +196,29 @@ export default function AdminUsersPage() {
       notifyErrorFromUnknown(new Error('Chưa chọn được tài khoản game trên server này.'));
       return;
     }
-    const extId = Number(externalItemId);
-    const qty = Number(sendQuantity);
-    if (!Number.isFinite(extId) || extId < 1) {
-      notifyErrorFromUnknown(new Error('Vui lòng chọn vật phẩm.'));
-      return;
+    try {
+      const parsedItems = sendItems.map((item, idx) => {
+        const extId = Number(item.externalItemId);
+        const qty = Number(item.quantity);
+        if (!Number.isFinite(extId) || extId < 1) {
+          throw new Error(`Vui lòng chọn vật phẩm ở dòng ${idx + 1}.`);
+        }
+        if (!Number.isFinite(qty) || qty < 1 || qty > 9999) {
+          throw new Error(`Số lượng ở dòng ${idx + 1} phải từ 1 đến 9999.`);
+        }
+        return { externalItemId: extId, quantity: qty };
+      });
+      if (parsedItems.length === 0) {
+        notifyErrorFromUnknown(new Error('Vui lòng thêm ít nhất 1 vật phẩm.'));
+        return;
+      }
+      sendItemMail({
+        userId: sendingFor.userId,
+        payload: { serverId: sendServerId, items: parsedItems },
+      });
+    } catch (error) {
+      notifyErrorFromUnknown(error);
     }
-    if (!Number.isFinite(qty) || qty < 1 || qty > 9999) {
-      notifyErrorFromUnknown(new Error('Số lượng từ 1 đến 9999.'));
-      return;
-    }
-    sendItemMail({
-      userId: sendingFor.userId,
-      payload: { serverId: sendServerId, externalItemId: extId, quantity: qty },
-    });
   }
 
   return (
@@ -415,21 +423,61 @@ export default function AdminUsersPage() {
                   </div>
                 )}
 
-                <div className='space-y-1.5'>
-                  <label className='text-xs font-medium text-white/50'>Vật phẩm</label>
-                  <ExternalItemSelector value={externalItemId} items={extItems} onChange={setExternalItemId} />
-                </div>
-
-                <div className='space-y-1.5'>
-                  <label className='text-xs font-medium text-white/50'>Số lượng</label>
-                  <Input
-                    type='number'
-                    min={1}
-                    max={9999}
-                    value={sendQuantity}
-                    onChange={(e) => setSendQuantity(e.target.value)}
-                    className='border-white/10 bg-white/5 text-white'
-                  />
+                <div className='space-y-2'>
+                  <div className='flex items-center justify-between'>
+                    <label className='text-xs font-medium text-white/50'>Danh sách vật phẩm</label>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      onClick={() => setSendItems((prev) => [...prev, createEmptySendItem()])}
+                      className='h-7 px-2 text-xs text-[#44C8F3] hover:bg-[#44C8F3]/15'
+                    >
+                      + Thêm vật phẩm
+                    </Button>
+                  </div>
+                  <div className='space-y-3'>
+                    {sendItems.map((item, idx) => (
+                      <div key={`${idx}-${item.externalItemId}`} className='rounded-md border border-white/10 bg-white/5 p-3'>
+                        <div className='mb-2 flex items-center justify-between'>
+                          <p className='text-xs text-white/45'>Vật phẩm #{idx + 1}</p>
+                          {sendItems.length > 1 && (
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              onClick={() => setSendItems((prev) => prev.filter((_, i) => i !== idx))}
+                              className='h-6 px-2 text-xs text-red-300 hover:bg-red-500/15'
+                            >
+                              Xóa
+                            </Button>
+                          )}
+                        </div>
+                        <div className='space-y-2'>
+                          <ExternalItemSelector
+                            value={item.externalItemId}
+                            items={extItems}
+                            onChange={(id) =>
+                              setSendItems((prev) =>
+                                prev.map((entry, i) => (i === idx ? { ...entry, externalItemId: id } : entry))
+                              )
+                            }
+                          />
+                          <Input
+                            type='number'
+                            min={1}
+                            max={9999}
+                            value={item.quantity}
+                            onChange={(e) =>
+                              setSendItems((prev) =>
+                                prev.map((entry, i) => (i === idx ? { ...entry, quantity: e.target.value } : entry))
+                              )
+                            }
+                            placeholder='Số lượng'
+                            className='border-white/10 bg-white/5 text-white'
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
@@ -446,7 +494,12 @@ export default function AdminUsersPage() {
               <Button
                 type='button'
                 disabled={
-                  isSending || gameMetaLoading || !characterOnServer || !externalItemId || sendServerId === ''
+                  isSending ||
+                  gameMetaLoading ||
+                  !characterOnServer ||
+                  sendServerId === '' ||
+                  sendItems.length === 0 ||
+                  sendItems.some((item) => !item.externalItemId)
                 }
                 onClick={handleSendItem}
                 className='gap-2 bg-[#44C8F3] font-semibold text-black hover:bg-[#44C8F3]/90'
