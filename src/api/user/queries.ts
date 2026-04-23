@@ -1,5 +1,6 @@
 import { createMutation, createQuery } from 'react-query-kit';
-import { adminDeleteUser, adminListUsers, patchProfile } from './requests';
+import { adminDeleteUser, adminGetUserGameMeta, adminListUsers, adminSendItemMailToUser, patchProfile } from './requests';
+import type { AdminSendItemMailPayload } from './types';
 import type { UpdateProfileInput } from './types';
 
 export const useUpdateProfile = createMutation({
@@ -17,4 +18,18 @@ export const useAdminUsers = createQuery<
 
 export const useAdminDeleteUser = createMutation({
   mutationFn: (userId: string) => adminDeleteUser(userId),
+});
+
+export const useAdminUserGameMeta = createQuery<
+  Awaited<ReturnType<typeof adminGetUserGameMeta>>,
+  { userId: string | null },
+  Error
+>({
+  primaryKey: 'admin-user-game-meta',
+  queryFn: ({ queryKey: [, variables] }) => adminGetUserGameMeta(variables.userId!),
+});
+
+export const useAdminSendItemMail = createMutation({
+  mutationFn: ({ userId, payload }: { userId: string; payload: AdminSendItemMailPayload }) =>
+    adminSendItemMailToUser(userId, payload),
 });
