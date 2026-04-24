@@ -10,6 +10,7 @@ import {
   clearPortalGameHandoff,
   ensurePortalGameHandoffForLaunch,
   patchPortalGameHandoffAccessToken,
+  resolvePortalGameAccountId,
   savePortalGameLoginSession,
   setPortalGameHandoff,
 } from '@/utils/game-handoff';
@@ -138,13 +139,9 @@ export function usePortalSessionSync(enabled: boolean): void {
           return;
         }
         if (res.ok) {
-          const uid =
-            portalUser?.userId != null
-              ? String(portalUser.userId)
-              : portalUser?.id != null
-                ? String(portalUser.id)
-                : undefined;
-          ensurePortalGameHandoffForLaunch(uid, getAccessToken(), base);
+          const tokenNow = getAccessToken();
+          const uid = resolvePortalGameAccountId(portalUser, tokenNow);
+          ensurePortalGameHandoffForLaunch(uid, tokenNow, base);
         }
       } catch {
         // ignore network errors for poll

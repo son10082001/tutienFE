@@ -12,6 +12,7 @@ import {
   buildGameLaunchUrlWithHandoff,
   ensurePortalGameHandoffForLaunch,
   readPortalGameHandoff,
+  resolvePortalGameAccountId,
 } from '@/utils/game-handoff';
 import { ChevronDown, Wallet } from 'lucide-react';
 import Link from 'next/link';
@@ -89,9 +90,8 @@ const Profile = () => {
                 className='mb-2 h-9 w-full rounded-md border border-white/20 bg-white/10 font-medium text-white hover:bg-white/20'
                 onClick={() => {
                   try {
-                    const portalUserId =
-                      user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
                     const token = getAccessToken();
+                    const portalUserId = resolvePortalGameAccountId(user, token);
                     if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {
                       notifyError(
                         'Không mở được game',

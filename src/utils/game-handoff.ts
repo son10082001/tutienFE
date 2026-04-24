@@ -38,6 +38,29 @@ export function savePortalGameLoginSession(userId: string, password: string): vo
   }
 }
 
+/**
+ * Mã tài khoản game dùng cho handoff (khớp lúc đăng nhập form).
+ * Không ưu tiên `user.id` trước session/handoff — `id` thường là ID nội bộ, lệch với userId đã lưu handoff (dễ lỗi trên mobile khi store thiếu userId).
+ */
+export function resolvePortalGameAccountId(
+  user: { userId?: string | number | null; id?: string | number | null } | null | undefined,
+  accessToken: string | null
+): string | undefined {
+  if (user?.userId != null && String(user.userId).trim() !== '') {
+    return String(user.userId);
+  }
+  const h = readPortalGameHandoff();
+  if (h?.userId && accessToken && h.accessToken === accessToken) {
+    return String(h.userId);
+  }
+  const sess = readPortalLoginSession();
+  if (sess?.userId) {
+    return String(sess.userId);
+  }
+  if (user?.id != null) return String(user.id);
+  return undefined;
+}
+
 export function readPortalGameHandoff(): PortalGameHandoffPayload | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -108,11 +131,21 @@ export function ensurePortalGameHandoffForLaunch(
   const base = apiBaseUrl.replace(/\/$/, '');
   const gid = getOrCreateDeviceGroupId();
   const existing = readPortalGameHandoff();
-  if (existing?.userId === portalUserId && existing.password) {
-    if (existing.accessToken !== accessToken || existing.apiBaseUrl !== base || existing.deviceGroupId !== gid) {
-      setPortalGameHandoff(existing.userId, existing.password, accessToken, base, gid);
+  // Cùng JWT với handoff đã lưu → cùng phiên (tránh lệch so sánh khi UI chỉ có `id` mà không có `userId`).
+  if (existing?.password) {
+    const sameToken = existing.accessToken === accessToken;
+    const samePortalUser =
+      portalUserId != null && String(existing.userId) === String(portalUserId);
+    if (sameToken || samePortalUser) {
+      if (
+        existing.accessToken !== accessToken ||
+        existing.apiBaseUrl !== base ||
+        existing.deviceGroupId !== gid
+      ) {
+        setPortalGameHandoff(existing.userId, existing.password, accessToken, base, gid);
+      }
+      return true;
     }
-    return true;
   }
   const sess = readPortalLoginSession();
   if (sess && sess.userId === portalUserId && sess.password) {

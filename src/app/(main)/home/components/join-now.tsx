@@ -12,6 +12,7 @@ import {
   buildGameLaunchUrlWithHandoff,
   ensurePortalGameHandoffForLaunch,
   readPortalGameHandoff,
+  resolvePortalGameAccountId,
 } from '@/utils/game-handoff';
 import { notifyError } from '@/utils/notify';
 import { motion } from 'framer-motion';
@@ -21,8 +22,8 @@ const JoinNow = () => {
 
   function handlePlayNow() {
     try {
-      const portalUserId = user?.userId != null ? String(user.userId) : user?.id != null ? String(user.id) : undefined;
       const token = getAccessToken();
+      const portalUserId = resolvePortalGameAccountId(user, token);
       if (!ensurePortalGameHandoffForLaunch(portalUserId, token, API_URL)) {
         notifyError('Không mở được game', 'Chưa liên kết phiên game với tài khoản web. Vui lòng đăng nhập lại.');
         return;
