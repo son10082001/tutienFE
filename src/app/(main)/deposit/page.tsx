@@ -5,10 +5,11 @@ import { useCreateDeposit, useDepositOptions, useDepositPromotion, useMyDeposits
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { notifyError, notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
-import { SYNC_MODE, VIETQR_SEPAY_QR_TEMPLATE } from '@/utils/const';
 import { websocketSync } from '@/lib/websocketSync';
+import { SYNC_MODE, VIETQR_SEPAY_QR_TEMPLATE } from '@/utils/const';
+import { notifyError, notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
 import { useQueryClient } from '@tanstack/react-query';
+import { refreshUserBalanceFromServer } from '@/utils/refresh-balance';
 import {
   CheckCircle2,
   ChevronLeft,
@@ -21,7 +22,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -218,7 +219,7 @@ function HistoryTab() {
                 <p className='font-mono text-xs text-[#44C8F3]/90'>{item.note}</p>
                 <p className='text-xs text-white/40'>{item.method}</p>
                 <p className='text-xs text-white/30'>{formatDate(item.createdAt)}</p>
-                {item.adminNote && <p className='text-xs text-red-400'>{item.adminNote}</p>}
+                {/* {item.adminNote && <p className='text-xs text-red-400'>{item.adminNote}</p>} */}
               </div>
               <span
                 className={cn('flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium', cfg.className)}
@@ -305,9 +306,22 @@ export default function DepositPage() {
     if (row && row.status !== 'pending') setActiveDeposit(row);
   }, [pollDeposits, activeDeposit]);
 
+  const prevDepositStatusRef = useRef<DepositRequest['status'] | null>(null);
+  useEffect(() => {
+    if (!activeDeposit) {
+      prevDepositStatusRef.current = null;
+      return;
+    }
+    const was = prevDepositStatusRef.current;
+    prevDepositStatusRef.current = activeDeposit.status;
+    if (activeDeposit.status === 'approved' && was === 'pending') {
+      void refreshUserBalanceFromServer(queryClient);
+    }
+  }, [activeDeposit, queryClient]);
+
   useEffect(() => {
     if (SYNC_MODE !== 'websocket') return;
-    const cb = (p: { depositId: string; status: string; note: string; amount: number }) => {
+    return websocketSync.subscribeDepositStatus((p) => {
       void queryClient.invalidateQueries({ queryKey: useMyDeposits.getKey() });
       setActiveDeposit((prev) =>
         prev && prev.id === p.depositId
@@ -320,9 +334,7 @@ export default function DepositPage() {
             }
           : prev
       );
-    };
-    websocketSync.setDepositStatusCallback(cb);
-    return () => websocketSync.setDepositStatusCallback(null);
+    });
   }, [queryClient]);
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 'use client';
 
+import { DepositBalanceSync } from '@/components/DepositBalanceSync';
 import { MessagePopupHost } from '@/components/ui/message-popup-host';
 import { PortalGameSessionBridge } from '@/components/PortalGameSessionBridge';
 import { HeroUIProvider } from '@heroui/react';
@@ -36,6 +37,7 @@ function Providers({ children }: ProvidersProps) {
       <HeroUIProvider>
         <QueryClientProvider client={queryClient}>
           <PortalGameSessionBridge />
+          <DepositBalanceSync />
           <MessagePopupHost />
           <>{isMounted ? children : <></>}</>
           <Toaster
