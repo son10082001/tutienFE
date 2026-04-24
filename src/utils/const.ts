@@ -1,5 +1,9 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
+/** QR SePay (khớp default backend) — fallback khi API chưa trả `qrTemplate`. */
+export const VIETQR_SEPAY_QR_TEMPLATE =
+  'https://qr.sepay.vn/img?acc={accountNumber}&bank={bankCode}&amount={amount}&des={note}&template=compact&download=0';
+
 export const GAME_LAUNCH_URL =
   process.env.NEXT_PUBLIC_GAME_URL || 'http://172.20.10.2:7456/web-mobile/web-mobile/index.html';
 

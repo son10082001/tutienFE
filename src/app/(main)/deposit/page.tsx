@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { notifyError, notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
+import { SYNC_MODE, VIETQR_SEPAY_QR_TEMPLATE } from '@/utils/const';
+import { websocketSync } from '@/lib/websocketSync';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   CheckCircle2,
@@ -290,6 +292,39 @@ export default function DepositPage() {
     onError: (err) => notifyErrorFromUnknown(err),
   });
 
+  /** Polling khi lệnh đang chờ SePay (backup nếu mất WebSocket / SYNC_MODE khác). */
+  const { data: pollDeposits } = useMyDeposits({
+    variables: { page: 1, limit: 20 },
+    enabled: !!activeDeposit && activeDeposit.status === 'pending',
+    refetchInterval: activeDeposit?.status === 'pending' ? 5000 : false,
+  });
+
+  useEffect(() => {
+    if (!activeDeposit || activeDeposit.status !== 'pending' || !pollDeposits?.items) return;
+    const row = pollDeposits.items.find((d) => d.id === activeDeposit.id);
+    if (row && row.status !== 'pending') setActiveDeposit(row);
+  }, [pollDeposits, activeDeposit]);
+
+  useEffect(() => {
+    if (SYNC_MODE !== 'websocket') return;
+    const cb = (p: { depositId: string; status: string; note: string; amount: number }) => {
+      void queryClient.invalidateQueries({ queryKey: useMyDeposits.getKey() });
+      setActiveDeposit((prev) =>
+        prev && prev.id === p.depositId
+          ? {
+              ...prev,
+              status: p.status as DepositRequest['status'],
+              note: p.note,
+              amount: p.amount,
+              adminNote: 'Auto duyet boi SePay webhook',
+            }
+          : prev
+      );
+    };
+    websocketSync.setDepositStatusCallback(cb);
+    return () => websocketSync.setDepositStatusCallback(null);
+  }, [queryClient]);
+
   useEffect(() => {
     if (!method && paymentMethods.length > 0) {
       setMethod(paymentMethods[0]!.code);
@@ -530,7 +565,10 @@ export default function DepositPage() {
                   bankName={selectedBank?.name ?? null}
                   amount={amount}
                   note={transferNote}
-                  qrTemplate={selectedMethod?.qrTemplate}
+                  qrTemplate={
+                    selectedMethod?.qrTemplate ??
+                    (method.toLowerCase() === 'vietqr' ? VIETQR_SEPAY_QR_TEMPLATE : null)
+                  }
                   bonusAmount={activeDeposit.bonusAmount ?? 0}
                 />
 

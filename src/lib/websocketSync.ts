@@ -31,7 +31,15 @@ type InboundMsg =
   | { type: 'broadcast'; data: FirebaseBroadcastData | null }
   | { type: 'revoked'; at: number; platform?: string }
   | { type: 'pong' }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string }
+  | {
+      type: 'deposit_status';
+      userId: string;
+      depositId: string;
+      status: string;
+      note: string;
+      amount: number;
+    };
 
 const MIN_BACKOFF_MS = 1000;
 const MAX_BACKOFF_MS = 30000;
@@ -43,6 +51,9 @@ class WebSocketSyncService {
   private broadcastCallback: ((data: FirebaseBroadcastData | null) => void) | null = null;
   private revokedCallback: ((at: number, platform?: string) => void) | null = null;
   private lastRevokedAt: number | null = null;
+  private depositStatusCallback:
+    | ((p: { depositId: string; status: string; note: string; amount: number }) => void)
+    | null = null;
 
   private outbound: OutboundMsg[] = [];
   private backoffMs: number = MIN_BACKOFF_MS;
@@ -162,6 +173,20 @@ class WebSocketSyncService {
           console.warn('[WebSocketSync] revokedCallback threw', e);
         }
       }
+    } else if (msg.type === 'deposit_status') {
+      if (!this.userId || String(msg.userId) !== String(this.userId)) return;
+      if (this.depositStatusCallback) {
+        try {
+          this.depositStatusCallback({
+            depositId: msg.depositId,
+            status: msg.status,
+            note: msg.note,
+            amount: msg.amount,
+          });
+        } catch (e) {
+          console.warn('[WebSocketSync] depositStatusCallback threw', e);
+        }
+      }
     }
   }
 
@@ -204,6 +229,14 @@ class WebSocketSyncService {
 
   public setRevokedCallback(callback: (at: number, platform?: string) => void): void {
     this.revokedCallback = callback;
+  }
+
+  public setDepositStatusCallback(
+    callback:
+      | ((p: { depositId: string; status: string; note: string; amount: number }) => void)
+      | null
+  ): void {
+    this.depositStatusCallback = callback;
   }
 
   public reportBroadcast(userId: string, password: string, platform: string): void {

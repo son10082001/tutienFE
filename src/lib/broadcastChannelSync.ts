@@ -264,6 +264,15 @@ class BroadcastChannelSyncService {
   public stopBroadcastListen(): void {
     this.broadcastCallback = null;
   }
+
+  /** Chỉ WebSocket broker hỗ trợ — để API đồng bộ với `websocketSync`. */
+  public setDepositStatusCallback(
+    _callback:
+      | ((p: { depositId: string; status: string; note: string; amount: number }) => void)
+      | null
+  ): void {
+    void _callback;
+  }
 }
 
 export const broadcastChannelSync = new BroadcastChannelSyncService();
