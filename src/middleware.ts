@@ -15,8 +15,7 @@ export function middleware(request: NextRequest) {
       let cookieValue = authData.value;
       try {
         cookieValue = decodeURIComponent(cookieValue);
-      } catch {
-      }
+      } catch {}
       const parsedData = JSON.parse(cookieValue);
       const state = parsedData?.state || {};
       isAuthenticated = state.isAuthenticated || false;
@@ -37,15 +36,13 @@ export function middleware(request: NextRequest) {
       let cookieValue = authData.value;
       try {
         cookieValue = decodeURIComponent(cookieValue);
-      } catch {
-      }
+      } catch {}
       const parsedData = JSON.parse(cookieValue);
       const state = parsedData?.state || {};
       permissions = Array.isArray(state.user?.permissions) ? state.user.permissions : [];
       adminRole = String(state.user?.adminRole || '').toUpperCase();
     }
-  } catch {
-  }
+  } catch {}
 
   const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS];
   const publicPathPrefixes = [`${ROUTES.NEWS}/`, `${ROUTES.SUPPORT}/`];
@@ -68,7 +65,6 @@ export function middleware(request: NextRequest) {
     '/admin/support-channels': 'dashboard.view',
     '/admin/settings': 'settings.manage',
   };
-
 
   if (isAuthenticated && isAdmin && !isAdminPage && !isAuthPage) {
     return NextResponse.redirect(new URL(ROUTES.ADMIN_DASHBOARD, request.url));

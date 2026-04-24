@@ -1,10 +1,5 @@
 import { axiosInstance } from '../axios';
-import type {
-  CreateSupportTicketInput,
-  MySupportTicketsResponse,
-  SupportChannel,
-  SupportMetaResponse,
-} from './types';
+import type { CreateSupportTicketInput, MySupportTicketsResponse, SupportChannel, SupportMetaResponse } from './types';
 
 export const getSupportMeta = async (): Promise<SupportMetaResponse> => {
   const { data } = await axiosInstance.get<SupportMetaResponse>('/support/meta');
@@ -51,7 +46,7 @@ export const uploadAdminSupportIcon = async (file: File): Promise<{ imageUrl: st
 
 export const updateAdminSupportChannel = async (
   id: string,
-  payload: { name?: string; url?: string; icon?: string | null; isActive?: boolean; sortOrder?: number },
+  payload: { name?: string; url?: string; icon?: string | null; isActive?: boolean; sortOrder?: number }
 ) => {
   const { data } = await axiosInstance.patch(`/admin/support/channels/${encodeURIComponent(id)}`, payload);
   return data;

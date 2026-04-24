@@ -56,9 +56,7 @@ function StatusToggle({
       disabled={disabled}
       onClick={onToggle}
       className={`relative inline-flex h-7 w-14 items-center rounded-full border transition ${
-        checked
-          ? 'border-emerald-400/70 bg-emerald-500/30'
-          : 'border-white/20 bg-white/10'
+        checked ? 'border-emerald-400/70 bg-emerald-500/30' : 'border-white/20 bg-white/10'
       } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
     >
       <span
@@ -91,7 +89,7 @@ export default function AdminSupportChannelsPage() {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [formErrors, setFormErrors] = useState<Partial<Record<'code' | 'name' | 'url' | 'icon' | 'sortOrder', string>>>(
-    {},
+    {}
   );
   const [editErrors, setEditErrors] = useState<Partial<Record<'name' | 'url' | 'icon' | 'sortOrder', string>>>({});
   const [editingChannel, setEditingChannel] = useState<{
@@ -146,7 +144,7 @@ export default function AdminSupportChannelsPage() {
           refresh();
         },
         onError: notifyErrorFromUnknown,
-      },
+      }
     );
   }
 
@@ -210,7 +208,7 @@ export default function AdminSupportChannelsPage() {
           refresh();
         },
         onError: notifyErrorFromUnknown,
-      },
+      }
     );
   }
 
@@ -263,7 +261,7 @@ export default function AdminSupportChannelsPage() {
                       onToggle={() =>
                         updateSupportChannel(
                           { id: channel.id, data: { isActive: !channel.isActive } },
-                          { onSuccess: refresh, onError: notifyErrorFromUnknown },
+                          { onSuccess: refresh, onError: notifyErrorFromUnknown }
                         )
                       }
                     />
@@ -353,7 +351,11 @@ export default function AdminSupportChannelsPage() {
                 </div>
                 {newChannel.icon ? (
                   <div className='flex items-center gap-2'>
-                    <img src={toAssetUrl(newChannel.icon)} alt='Icon preview' className='h-8 w-8 rounded object-cover' />
+                    <img
+                      src={toAssetUrl(newChannel.icon)}
+                      alt='Icon preview'
+                      className='h-8 w-8 rounded object-cover'
+                    />
                     <span className='text-xs text-white/50'>{newChannel.icon}</span>
                   </div>
                 ) : null}
@@ -380,7 +382,11 @@ export default function AdminSupportChannelsPage() {
             </div>
           </div>
           <div className='mt-2 flex justify-end gap-2'>
-            <Button variant='ghost' onClick={() => setOpenCreateDialog(false)} className='text-white/70 hover:bg-white/10'>
+            <Button
+              variant='ghost'
+              onClick={() => setOpenCreateDialog(false)}
+              className='text-white/70 hover:bg-white/10'
+            >
               Huỷ
             </Button>
             <Button onClick={handleCreateChannel}>Tạo</Button>
@@ -445,7 +451,11 @@ export default function AdminSupportChannelsPage() {
                 </div>
                 {editingChannel.icon ? (
                   <div className='mt-2 flex items-center gap-2'>
-                    <img src={toAssetUrl(editingChannel.icon)} alt='Icon preview' className='h-8 w-8 rounded object-cover' />
+                    <img
+                      src={toAssetUrl(editingChannel.icon)}
+                      alt='Icon preview'
+                      className='h-8 w-8 rounded object-cover'
+                    />
                     <span className='text-xs text-white/50'>{editingChannel.icon}</span>
                   </div>
                 ) : null}
@@ -472,7 +482,11 @@ export default function AdminSupportChannelsPage() {
             </div>
           ) : null}
           <div className='mt-2 flex justify-end gap-2'>
-            <Button variant='ghost' onClick={() => setOpenEditDialog(false)} className='text-white/70 hover:bg-white/10'>
+            <Button
+              variant='ghost'
+              onClick={() => setOpenEditDialog(false)}
+              className='text-white/70 hover:bg-white/10'
+            >
               Huỷ
             </Button>
             <Button onClick={handleSaveEdit}>Lưu thay đổi</Button>

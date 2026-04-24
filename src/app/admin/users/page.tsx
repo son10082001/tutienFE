@@ -109,7 +109,9 @@ export default function AdminUsersPage() {
   const [deleting, setDeleting] = useState<AdminUserRow | null>(null);
   const [sendingFor, setSendingFor] = useState<AdminUserRow | null>(null);
   const [sendServerId, setSendServerId] = useState<number | ''>('');
-  const [sendItems, setSendItems] = useState<Array<{ externalItemId: string; quantity: string }>>([createEmptySendItem()]);
+  const [sendItems, setSendItems] = useState<Array<{ externalItemId: string; quantity: string }>>([
+    createEmptySendItem(),
+  ]);
 
   const user = useAuthStore((s) => s.user);
   const permissions = user?.permissions ?? [];
@@ -437,7 +439,10 @@ export default function AdminUsersPage() {
                   </div>
                   <div className='space-y-3'>
                     {sendItems.map((item, idx) => (
-                      <div key={`${idx}-${item.externalItemId}`} className='rounded-md border border-white/10 bg-white/5 p-3'>
+                      <div
+                        key={`${idx}-${item.externalItemId}`}
+                        className='rounded-md border border-white/10 bg-white/5 p-3'
+                      >
                         <div className='mb-2 flex items-center justify-between'>
                           <p className='text-xs text-white/45'>Vật phẩm #{idx + 1}</p>
                           {sendItems.length > 1 && (

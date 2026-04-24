@@ -13,7 +13,9 @@ export default function SupportPage() {
       <div className='mx-auto max-w-6xl space-y-6'>
         <div className='text-center'>
           <h1 className='text-3xl font-bold text-white'>Chăm sóc khách hàng</h1>
-          <p className='mt-2 text-sm text-white/55'>Tạo yêu cầu hỗ trợ, theo dõi lịch sử và liên hệ CSKH qua các kênh chính thức.</p>
+          <p className='mt-2 text-sm text-white/55'>
+            Tạo yêu cầu hỗ trợ, theo dõi lịch sử và liên hệ CSKH qua các kênh chính thức.
+          </p>
         </div>
 
         <div className='grid gap-4 md:grid-cols-3'>
@@ -39,8 +41,6 @@ export default function SupportPage() {
             <p className='text-xs text-white/60'>Mọi trao đổi được lưu và bảo vệ</p>
           </div>
         </div>
-
-    
 
         <section className='space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4'>
           <h2 className='font-semibold text-white'>Kênh liên hệ</h2>

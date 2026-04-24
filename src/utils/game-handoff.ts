@@ -134,14 +134,9 @@ export function ensurePortalGameHandoffForLaunch(
   // Cùng JWT với handoff đã lưu → cùng phiên (tránh lệch so sánh khi UI chỉ có `id` mà không có `userId`).
   if (existing?.password) {
     const sameToken = existing.accessToken === accessToken;
-    const samePortalUser =
-      portalUserId != null && String(existing.userId) === String(portalUserId);
+    const samePortalUser = portalUserId != null && String(existing.userId) === String(portalUserId);
     if (sameToken || samePortalUser) {
-      if (
-        existing.accessToken !== accessToken ||
-        existing.apiBaseUrl !== base ||
-        existing.deviceGroupId !== gid
-      ) {
+      if (existing.accessToken !== accessToken || existing.apiBaseUrl !== base || existing.deviceGroupId !== gid) {
         setPortalGameHandoff(existing.userId, existing.password, accessToken, base, gid);
       }
       return true;

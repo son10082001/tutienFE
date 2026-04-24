@@ -25,9 +25,7 @@ export const adminDeleteUser = async (userId: string): Promise<{ message: string
 };
 
 export const adminGetUserGameMeta = async (userId: string): Promise<AdminUserGameMeta> => {
-  const { data } = await axiosInstance.get<AdminUserGameMeta>(
-    `/admin/users/${encodeURIComponent(userId)}/game-meta`
-  );
+  const { data } = await axiosInstance.get<AdminUserGameMeta>(`/admin/users/${encodeURIComponent(userId)}/game-meta`);
   return data;
 };
 

@@ -32,7 +32,10 @@ export const useCreateAdminAccount = createMutation({
 });
 
 export const useUpdateAdminAccount = createMutation({
-  mutationFn: ({ userId, data }: { userId: string; data: { role?: 'SUPERADMIN' | 'OPERATOR' | 'ADVERTISER'; name?: string; password?: string } }) =>
+  mutationFn: ({
+    userId,
+    data,
+  }: { userId: string; data: { role?: 'SUPERADMIN' | 'OPERATOR' | 'ADVERTISER'; name?: string; password?: string } }) =>
     updateAdminAccount(userId, data),
 });
 

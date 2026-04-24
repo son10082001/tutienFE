@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  useAdminAccounts,
-  useCreateAdminAccount,
-  useDeleteAdminAccount,
-  useUpdateAdminAccount,
-} from '@/api/admin';
+import { useAdminAccounts, useCreateAdminAccount, useDeleteAdminAccount, useUpdateAdminAccount } from '@/api/admin';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -89,7 +84,10 @@ export default function AdminAccountsPage() {
 
       <div className='space-y-2'>
         {data?.items.map((a) => (
-          <div key={a.userId} className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3'>
+          <div
+            key={a.userId}
+            className='flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3'
+          >
             <div>
               <p className='font-mono text-sm'>{a.userId}</p>
               <p className='text-xs text-white/45'>
@@ -106,7 +104,7 @@ export default function AdminAccountsPage() {
                     onChange={(e) =>
                       updateAdmin(
                         { userId: a.userId, data: { role: e.target.value as 'OPERATOR' | 'ADVERTISER' } },
-                        { onSuccess: refresh, onError: notifyErrorFromUnknown },
+                        { onSuccess: refresh, onError: notifyErrorFromUnknown }
                       )
                     }
                     className='rounded-md border border-white/10 bg-black/30 px-3 py-1 text-white [&>option]:bg-[#0C111D] [&>option]:text-white'
@@ -117,10 +115,7 @@ export default function AdminAccountsPage() {
                       </option>
                     ))}
                   </select>
-                  <Button
-                    variant='destructive'
-                    onClick={() => setDeletingAdmin({ userId: a.userId, name: a.name })}
-                  >
+                  <Button variant='destructive' onClick={() => setDeletingAdmin({ userId: a.userId, name: a.name })}>
                     Xóa
                   </Button>
                 </>
@@ -135,7 +130,8 @@ export default function AdminAccountsPage() {
             <DialogTitle className='text-white'>Xóa tài khoản admin</DialogTitle>
           </DialogHeader>
           <p className='text-sm text-white/65'>
-            Bạn có chắc muốn xóa tài khoản <span className='font-mono font-semibold text-white'>{deletingAdmin?.userId}</span>
+            Bạn có chắc muốn xóa tài khoản{' '}
+            <span className='font-mono font-semibold text-white'>{deletingAdmin?.userId}</span>
             {deletingAdmin?.name ? ` (${deletingAdmin.name})` : ''}? Thao tác này không thể hoàn tác.
           </p>
           <div className='mt-4 flex justify-end gap-3'>

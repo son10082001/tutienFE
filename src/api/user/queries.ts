@@ -1,5 +1,11 @@
 import { createMutation, createQuery } from 'react-query-kit';
-import { adminDeleteUser, adminGetUserGameMeta, adminListUsers, adminSendItemMailToUser, patchProfile } from './requests';
+import {
+  adminDeleteUser,
+  adminGetUserGameMeta,
+  adminListUsers,
+  adminSendItemMailToUser,
+  patchProfile,
+} from './requests';
 import type { AdminSendItemMailPayload } from './types';
 import type { UpdateProfileInput } from './types';
 

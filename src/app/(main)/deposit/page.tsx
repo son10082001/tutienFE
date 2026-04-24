@@ -134,9 +134,7 @@ function QRPanel({
         <Row label='Mã giao dịch' value={note} mono highlight />
         {/* <Row label='Nội dung CK' value={note} mono /> */}
       </div>
-      <p className='text-center text-xs text-white/30'>
-        Quét mã QR theo phương thức đã chọn để chuyển tiền
-      </p>
+      <p className='text-center text-xs text-white/30'>Quét mã QR theo phương thức đã chọn để chuyển tiền</p>
     </div>
   );
 }
@@ -283,7 +281,7 @@ export default function DepositPage() {
   const { data: optionsRes } = useDepositOptions();
   const paymentMethods = optionsRes?.methods ?? [];
   const selectedMethod = useMemo(() => paymentMethods.find((m) => m.code === method) ?? null, [paymentMethods, method]);
-  const selectedBank = useMemo(() => (selectedMethod?.banks?.[0] ?? null), [selectedMethod]);
+  const selectedBank = useMemo(() => selectedMethod?.banks?.[0] ?? null, [selectedMethod]);
   const activePromo = promoRes?.active ?? null;
   const previewBonus = activePromo && amount >= 10_000 ? Math.floor((amount * activePromo.percent) / 100) : 0;
 
@@ -414,40 +412,40 @@ export default function DepositPage() {
                   const logoSrc =
                     methodCode === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg';
                   return (
-                  <button
-                    key={m.code}
-                    type='button'
-                    onClick={() => {
-                      setMethod(m.code);
-                      setShowQR(false);
-                      setSubmitted(false);
-                      setActiveDeposit(null);
-                    }}
-                    className={cn(
-                      'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
-                      method === m.code
-                        ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
-                        : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
-                    )}
-                  >
-                    <Image
-                      src={logoSrc}
-                      alt={m.name}
-                      width={36}
-                      height={36}
-                      className='rounded-lg object-contain'
-                      onError={(e) => {
-                        if (methodCode === 'vietqr') {
-                          const target = e.currentTarget as HTMLImageElement;
-                          target.src = '/images/logo-bank/vietqr.svg';
-                        }
+                    <button
+                      key={m.code}
+                      type='button'
+                      onClick={() => {
+                        setMethod(m.code);
+                        setShowQR(false);
+                        setSubmitted(false);
+                        setActiveDeposit(null);
                       }}
-                    />
-                    <div>
-                      <p className='font-semibold text-sm'>{m.name}</p>
-                      <p className='text-xs opacity-60'>{m.code}</p>
-                    </div>
-                  </button>
+                      className={cn(
+                        'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
+                        method === m.code
+                          ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
+                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
+                      )}
+                    >
+                      <Image
+                        src={logoSrc}
+                        alt={m.name}
+                        width={36}
+                        height={36}
+                        className='rounded-lg object-contain'
+                        onError={(e) => {
+                          if (methodCode === 'vietqr') {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = '/images/logo-bank/vietqr.svg';
+                          }
+                        }}
+                      />
+                      <div>
+                        <p className='font-semibold text-sm'>{m.name}</p>
+                        <p className='text-xs opacity-60'>{m.code}</p>
+                      </div>
+                    </button>
                   );
                 })}
               </div>

@@ -14,14 +14,7 @@ const FooterLandingPage = () => {
     <>
       <footer className={`border-white/40 border-t bg-[#0C111D] pb-[40px] sm:pb-0`}>
         <div className='mx-auto mt-6 flex flex-col items-center sm:mt-[18px]'>
-          <Image
-            src='/images/logo-header.png'
-            alt='logo'
-            width={100}
-            height={100}
-            className='h-[80px] w-auto cursor-pointer sm:h-[135px]'
-            onClick={() => router.push('/')}
-          />
+          <Image src={'/images/logo-header.png'} width={288.48} height={192.27} alt='logo' className='w-[288.48px]' />
 
           <p
             className='mt-3 cursor-pointer text-button-lg text-white transition-all hover:scale-110'

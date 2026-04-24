@@ -34,7 +34,7 @@ export const createAdminAccount = async (payload: {
 
 export const updateAdminAccount = async (
   userId: string,
-  payload: { role?: 'SUPERADMIN' | 'OPERATOR' | 'ADVERTISER'; name?: string; password?: string },
+  payload: { role?: 'SUPERADMIN' | 'OPERATOR' | 'ADVERTISER'; name?: string; password?: string }
 ) => {
   const { data } = await axiosInstance.patch(`/admin/admins/${encodeURIComponent(userId)}`, payload);
   return data;
@@ -44,10 +44,7 @@ export const deleteAdminAccount = async (userId: string): Promise<void> => {
   await axiosInstance.delete(`/admin/admins/${encodeURIComponent(userId)}`);
 };
 
-export const updateRolePermissions = async (
-  role: 'OPERATOR' | 'ADVERTISER',
-  permissions: string[],
-) => {
+export const updateRolePermissions = async (role: 'OPERATOR' | 'ADVERTISER', permissions: string[]) => {
   const { data } = await axiosInstance.patch(`/admin/settings/role-permissions/${role}`, { permissions });
   return data;
 };
@@ -60,7 +57,7 @@ export const updatePaymentMethodSetting = async (
     bankName?: string | null;
     bankCode?: string | null;
     bankNumber?: string | null;
-  },
+  }
 ): Promise<PaymentMethodSetting> => {
   const { data } = await axiosInstance.patch<PaymentMethodSetting>(`/admin/settings/payment-methods/${code}`, payload);
   return data;

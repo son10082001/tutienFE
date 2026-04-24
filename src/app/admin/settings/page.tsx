@@ -51,13 +51,18 @@ export default function AdminSettingsPage() {
     OPERATOR: [],
     ADVERTISER: [],
   });
-  const [methodDraft, setMethodDraft] = useState<Record<'vietqr' | 'momo', {
-    accountName: string;
-    phoneNumber: string;
-    bankName: string;
-    bankCode: string;
-    bankNumber: string;
-  }>>({
+  const [methodDraft, setMethodDraft] = useState<
+    Record<
+      'vietqr' | 'momo',
+      {
+        accountName: string;
+        phoneNumber: string;
+        bankName: string;
+        bankCode: string;
+        bankNumber: string;
+      }
+    >
+  >({
     vietqr: { accountName: '', phoneNumber: '', bankName: '', bankCode: '', bankNumber: '' },
     momo: { accountName: '', phoneNumber: '', bankName: '', bankCode: '', bankNumber: '' },
   });
@@ -84,7 +89,7 @@ export default function AdminSettingsPage() {
         phoneNumber: vqr?.phoneNumber ?? '',
         bankName: (vqr?.banks?.[0]?.name as string) ?? '',
         bankCode: (vqr?.banks?.[0]?.code as string) ?? '',
-        bankNumber: (vqr?.banks?.[0]?.accountNumber as string) ?? (vqr?.accountNumber ?? ''),
+        bankNumber: (vqr?.banks?.[0]?.accountNumber as string) ?? vqr?.accountNumber ?? '',
       },
       momo: {
         accountName: momo?.accountName ?? '',
@@ -100,7 +105,9 @@ export default function AdminSettingsPage() {
     <div className='space-y-8 p-8 text-white'>
       <div>
         <h1 className='text-2xl font-bold'>Cài đặt hệ thống</h1>
-        <p className='mt-1 text-sm text-white/60'>Trang này chỉ cấu hình permission role và tài khoản thanh toán cố định.</p>
+        <p className='mt-1 text-sm text-white/60'>
+          Trang này chỉ cấu hình permission role và tài khoản thanh toán cố định.
+        </p>
       </div>
 
       {isLoading ? <p className='text-white/50'>Đang tải...</p> : null}
@@ -144,14 +151,14 @@ export default function AdminSettingsPage() {
 
         <div className='space-y-2'>
           {(data?.gameServers ?? []).map((s) => (
-            <div key={s.id} className='flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3'>
+            <div
+              key={s.id}
+              className='flex items-center justify-between rounded-lg border border-white/10 bg-black/20 p-3'
+            >
               <p className='text-sm text-white'>
                 [{s.code}] {s.name} {s.host ? `- ${s.host}` : ''} {s.desc ? `(${s.desc})` : ''}
               </p>
-              <Button
-                variant='destructive'
-                onClick={() => setDeletingServer({ id: s.id, code: s.code, name: s.name })}
-              >
+              <Button variant='destructive' onClick={() => setDeletingServer({ id: s.id, code: s.code, name: s.name })}>
                 Xóa
               </Button>
             </div>
@@ -175,9 +182,7 @@ export default function AdminSettingsPage() {
                       onChange={(e) =>
                         setPermissionDraft((prev) => ({
                           ...prev,
-                          [role]: e.target.checked
-                            ? [...prev[role], perm]
-                            : prev[role].filter((x) => x !== perm),
+                          [role]: e.target.checked ? [...prev[role], perm] : prev[role].filter((x) => x !== perm),
                         }))
                       }
                     />
@@ -197,7 +202,7 @@ export default function AdminSettingsPage() {
                       refresh();
                     },
                     onError: notifyErrorFromUnknown,
-                  },
+                  }
                 )
               }
             >
@@ -216,7 +221,9 @@ export default function AdminSettingsPage() {
               {code === 'vietqr' ? (
                 <Input
                   value={methodDraft[code].accountName}
-                  onChange={(e) => setMethodDraft((p) => ({ ...p, [code]: { ...p[code], accountName: e.target.value } }))}
+                  onChange={(e) =>
+                    setMethodDraft((p) => ({ ...p, [code]: { ...p[code], accountName: e.target.value } }))
+                  }
                   placeholder='Tên CTK'
                   className='border-white/10 bg-black/30 text-white placeholder:text-white/40'
                 />
@@ -249,13 +256,17 @@ export default function AdminSettingsPage() {
                   </select>
                   <Input
                     value={methodDraft[code].bankCode}
-                    onChange={(e) => setMethodDraft((p) => ({ ...p, [code]: { ...p[code], bankCode: e.target.value } }))}
+                    onChange={(e) =>
+                      setMethodDraft((p) => ({ ...p, [code]: { ...p[code], bankCode: e.target.value } }))
+                    }
                     placeholder='Mã code ngân hàng'
                     className='border-white/10 bg-black/30 text-white placeholder:text-white/40'
                   />
                   <Input
                     value={methodDraft[code].bankNumber}
-                    onChange={(e) => setMethodDraft((p) => ({ ...p, [code]: { ...p[code], bankNumber: e.target.value } }))}
+                    onChange={(e) =>
+                      setMethodDraft((p) => ({ ...p, [code]: { ...p[code], bankNumber: e.target.value } }))
+                    }
                     placeholder='Số ngân hàng'
                     className='border-white/10 bg-black/30 text-white placeholder:text-white/40'
                   />
@@ -263,7 +274,9 @@ export default function AdminSettingsPage() {
               ) : (
                 <Input
                   value={methodDraft[code].phoneNumber}
-                  onChange={(e) => setMethodDraft((p) => ({ ...p, [code]: { ...p[code], phoneNumber: e.target.value } }))}
+                  onChange={(e) =>
+                    setMethodDraft((p) => ({ ...p, [code]: { ...p[code], phoneNumber: e.target.value } }))
+                  }
                   placeholder='Số điện thoại MoMo'
                   className='border-white/10 bg-black/30 text-white placeholder:text-white/40'
                 />
@@ -289,7 +302,7 @@ export default function AdminSettingsPage() {
                       refresh();
                     },
                     onError: notifyErrorFromUnknown,
-                  },
+                  }
                 )
               }
             >
@@ -305,7 +318,10 @@ export default function AdminSettingsPage() {
             <DialogTitle className='text-white'>Xóa server game</DialogTitle>
           </DialogHeader>
           <p className='text-sm text-white/65'>
-            Bạn có chắc muốn xóa server <span className='font-semibold text-white'>[{deletingServer?.code}] {deletingServer?.name}</span>
+            Bạn có chắc muốn xóa server{' '}
+            <span className='font-semibold text-white'>
+              [{deletingServer?.code}] {deletingServer?.name}
+            </span>
             ? Thao tác này không thể hoàn tác.
           </p>
           <div className='mt-4 flex justify-end gap-3'>

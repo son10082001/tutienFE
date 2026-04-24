@@ -110,14 +110,14 @@ const LoginPage = () => {
 
                 {/* Logo */}
                 <div className='flex flex-col items-center gap-2'>
-                <Image
-            src='/images/logo-header.png'
-            alt='logo'
-            width={100}
-            height={100}
-            className='h-[80px] w-auto cursor-pointer sm:h-[135px]'
-            onClick={() => router.push('/')}
-          />
+                  <Image
+                    src={'/images/logo-header.png'}
+                    width={288.48}
+                    height={192.27}
+                    alt='logo'
+                    className='w-[288.48px] cursor-pointer'
+                    onClick={() => router.push('/')}
+                  />
 
                   <h2 className='bg-gradient-to-r from-yellow-200 via-white to-yellow-400 bg-clip-text font-bold text-2xl text-transparent tracking-widest'>
                     NGƯ TIÊN KÝ
