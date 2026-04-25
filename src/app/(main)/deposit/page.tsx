@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 import { websocketSync } from '@/lib/websocketSync';
 import { SYNC_MODE, VIETQR_SEPAY_QR_TEMPLATE } from '@/utils/const';
 import { notifyError, notifyErrorFromUnknown, notifySuccess } from '@/utils/notify';
-import { useQueryClient } from '@tanstack/react-query';
 import { refreshUserBalanceFromServer } from '@/utils/refresh-balance';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   CheckCircle2,
   ChevronLeft,
@@ -283,6 +283,12 @@ export default function DepositPage() {
   const { data: promoRes } = useDepositPromotion();
   const { data: optionsRes } = useDepositOptions();
   const paymentMethods = optionsRes?.methods ?? [];
+  /** VietQR lên đầu; Momo chỉ hiển thị trạng thái bảo trì (không dùng được). */
+  const orderedPaymentMethods = useMemo(() => {
+    const vietqr = paymentMethods.filter((m) => m.code.toLowerCase() === 'vietqr');
+    const rest = paymentMethods.filter((m) => m.code.toLowerCase() !== 'vietqr');
+    return [...vietqr, ...rest];
+  }, [paymentMethods]);
   const selectedMethod = useMemo(() => paymentMethods.find((m) => m.code === method) ?? null, [paymentMethods, method]);
   const selectedBank = useMemo(() => selectedMethod?.banks?.[0] ?? null, [selectedMethod]);
   const activePromo = promoRes?.active ?? null;
@@ -338,10 +344,21 @@ export default function DepositPage() {
   }, [queryClient]);
 
   useEffect(() => {
-    if (!method && paymentMethods.length > 0) {
-      setMethod(paymentMethods[0]!.code);
+    if (orderedPaymentMethods.length === 0) return;
+    const isMomo = (c: string) => c.toLowerCase() === 'momo';
+    if (method && isMomo(method)) {
+      const fallback =
+        orderedPaymentMethods.find((m) => m.code.toLowerCase() === 'vietqr') ??
+        orderedPaymentMethods.find((m) => !isMomo(m.code));
+      if (fallback) setMethod(fallback.code);
+      return;
     }
-  }, [method, paymentMethods]);
+    if (!method) {
+      const preferred =
+        orderedPaymentMethods.find((m) => m.code.toLowerCase() === 'vietqr') ?? orderedPaymentMethods[0];
+      if (preferred) setMethod(preferred.code);
+    }
+  }, [method, orderedPaymentMethods]);
 
   const transferNote = (() => {
     const raw = (activeDeposit?.note ?? '').toUpperCase();
@@ -371,6 +388,10 @@ export default function DepositPage() {
   function handleShowQR() {
     if (!amount || amount < 10_000) {
       notifyError('Số tiền không hợp lệ', 'Số tiền tối thiểu là 10.000đ');
+      return;
+    }
+    if (method.toLowerCase() === 'momo') {
+      notifyError('Đang bảo trì', 'MoMo tạm ngưng. Vui lòng chọn VietQR.');
       return;
     }
     if (!method) {
@@ -454,15 +475,18 @@ export default function DepositPage() {
             <div className='space-y-2'>
               <p className='text-sm font-medium text-white/70'>Phương thức nạp</p>
               <div className='grid grid-cols-2 gap-3'>
-                {paymentMethods.map((m) => {
+                {orderedPaymentMethods.map((m) => {
                   const methodCode = m.code.toLowerCase();
+                  const momoMaintenance = methodCode === 'momo';
                   const logoSrc =
                     methodCode === 'vietqr' ? '/images/logo-bank/vietqr.webp' : '/images/logo-bank/momo.svg';
                   return (
                     <button
                       key={m.code}
                       type='button'
+                      disabled={momoMaintenance}
                       onClick={() => {
+                        if (momoMaintenance) return;
                         setMethod(m.code);
                         setShowQR(false);
                         setSubmitted(false);
@@ -470,9 +494,12 @@ export default function DepositPage() {
                       }}
                       className={cn(
                         'flex items-center gap-3 rounded-xl border p-4 text-left transition-all',
-                        method === m.code
+                        momoMaintenance && 'cursor-not-allowed opacity-50',
+                        method === m.code && !momoMaintenance
                           ? 'border-[#44C8F3]/50 bg-[#44C8F3]/10 text-white'
-                          : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
+                          : !momoMaintenance
+                            ? 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white'
+                            : 'border-white/10 bg-white/[0.03] text-white/40'
                       )}
                     >
                       <Image
@@ -490,7 +517,9 @@ export default function DepositPage() {
                       />
                       <div>
                         <p className='font-semibold text-sm'>{m.name}</p>
-                        <p className='text-xs opacity-60'>{m.code}</p>
+                        <p className='text-xs opacity-60'>
+                          {momoMaintenance ? 'Đang bảo trì' : m.code}
+                        </p>
                       </div>
                     </button>
                   );
