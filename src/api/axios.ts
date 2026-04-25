@@ -1,4 +1,5 @@
-import { AUTH_ROUTES, ROUTES } from '@/lib/routes';
+import { isAuthOrPublicRoutePath } from '@/lib/pathname';
+import { ROUTES } from '@/lib/routes';
 import { getAccessToken, getRefreshToken, removeAuthStorage } from '@/utils/auth';
 import { API_URL } from '@/utils/const';
 import { clearPortalGameHandoff, patchPortalGameHandoffAccessToken } from '@/utils/game-handoff';
@@ -78,9 +79,7 @@ const handleAuthFailure = (): void => {
       return;
     }
 
-    // Only redirect if not already on an auth page
-    if (!AUTH_ROUTES.includes(pathname as any)) {
-      // Redirect to sign-in with companySymbol if available
+    if (!isAuthOrPublicRoutePath(pathname)) {
       window.location.href = `${ROUTES.LOGIN}`;
     }
   }

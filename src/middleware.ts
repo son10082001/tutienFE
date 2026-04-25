@@ -1,10 +1,14 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { isPublicRoutePath, normalizePathname } from './lib/pathname';
 import { ROUTES } from './lib/routes';
 import { COOKIE_KEY } from './utils/auth';
 
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+  const pathname = normalizePathname(request.nextUrl.pathname);
+  if (pathname === '/signup') {
+    return NextResponse.redirect(new URL(ROUTES.SIGN_UP, request.url));
+  }
   const forceLogin = request.nextUrl.searchParams.get('force') === '1';
 
   let isAuthenticated = false;
@@ -44,10 +48,7 @@ export function middleware(request: NextRequest) {
     }
   } catch {}
 
-  const publicPages = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS];
-  const publicPathPrefixes = [`${ROUTES.NEWS}/`, `${ROUTES.SUPPORT}/`];
-  const isPublicPage =
-    publicPages.includes(pathname) || publicPathPrefixes.some((prefix) => pathname.startsWith(prefix));
+  const isPublicPage = isPublicRoutePath(pathname);
 
   const authPages = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];
   const isAuthPage = authPages.includes(pathname);

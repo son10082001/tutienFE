@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { clearPortalGameHandoff, setPortalGameHandoff, savePortalGameLoginSession } from '@/utils/game-handoff';
 import { getOrCreateDeviceGroupId } from '@/utils/deviceGroup';
 import { API_URL } from '@/utils/const';
+import { isAuthOrPublicRoutePath } from '@/lib/pathname';
 import { ROUTES } from '@/lib/routes';
 import { useEffect, useRef } from 'react';
 import { notifySuccess } from '@/utils/notify';
@@ -40,7 +41,7 @@ export function usePortalBroadcastSync(): void {
         if (isAuthenticated) {
           logout();
         }
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith(ROUTES.LOGIN)) {
+        if (typeof window !== 'undefined' && !isAuthOrPublicRoutePath(window.location.pathname)) {
           window.location.href = ROUTES.LOGIN;
         }
       });

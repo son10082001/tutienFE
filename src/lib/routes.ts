@@ -25,3 +25,8 @@ export const ROUTES = {
 };
 
 export const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.SIGN_UP, ROUTES.FORGOT_PASSWORD];
+
+/** Khớp với middleware: trang xem công khai, không cần đăng nhập. */
+export const PUBLIC_ROUTES = ['/', ROUTES.HOME, ROUTES.MARKET_PLACE, ROUTES.SUPPORT, ROUTES.NEWS] as const;
+
+export const PUBLIC_ROUTE_PREFIXES = [`${ROUTES.NEWS}/`, `${ROUTES.SUPPORT}/`] as const;

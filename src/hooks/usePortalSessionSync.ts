@@ -1,6 +1,7 @@
 'use client';
 
 import { signIn, type UserInfoResponse } from '@/api/auth';
+import { isAuthOrPublicRoutePath } from '@/lib/pathname';
 import { ROUTES } from '@/lib/routes';
 import { sessionSync } from '@/lib/sessionSync';
 import { useAuthStore } from '@/stores/auth-store';
@@ -62,7 +63,9 @@ export function usePortalSessionSync(enabled: boolean): void {
             '→ logging out portal...'
           );
           logout();
-          window.location.href = ROUTES.LOGIN;
+          if (typeof window !== 'undefined' && !isAuthOrPublicRoutePath(window.location.pathname)) {
+            window.location.href = ROUTES.LOGIN;
+          }
         }
         return;
       }
@@ -133,7 +136,7 @@ export function usePortalSessionSync(enabled: boolean): void {
           }
           clearPortalGameHandoff();
           logout();
-          if (typeof window !== 'undefined' && !window.location.pathname.startsWith(ROUTES.LOGIN)) {
+          if (typeof window !== 'undefined' && !isAuthOrPublicRoutePath(window.location.pathname)) {
             window.location.href = ROUTES.LOGIN;
           }
           return;
