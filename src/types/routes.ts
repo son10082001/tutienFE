@@ -24,6 +24,7 @@ export const ROUTE = {
   MY_ACTIVITY: '/profile?tab=activity',
   AUTH: '/auth',
   DEPOSIT: '/deposit',
+  CUMULATIVE_RECHARGE: '/cumulative-recharge',
   TICKET_EXCHANGE: '/ticket-exchange',
   GIFT_CODE: '/gift-code',
   NEWS: '/news',

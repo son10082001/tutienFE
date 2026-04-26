@@ -5,6 +5,7 @@ import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import {
+  Award,
   CreditCard,
   Gift,
   LayoutDashboard,
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { label: 'Người dùng', href: ROUTES.ADMIN_USERS, icon: Users, permission: 'users.view' },
   { label: 'Nạp tiền', href: ROUTES.ADMIN_DEPOSIT, icon: CreditCard, permission: 'deposits.view' },
   { label: 'KM nạp tiền', href: ROUTES.ADMIN_DEPOSIT_PROMOTION, icon: Percent, permission: 'promotions.manage' },
+  { label: 'Tích nạp', href: ROUTES.ADMIN_CUMULATIVE_RECHARGE, icon: Award, permission: 'promotions.manage' },
   { label: 'Shop', href: ROUTES.ADMIN_SHOP, icon: ShoppingBag, permission: 'shop.manage' },
   { label: 'Gift Code', href: ROUTES.ADMIN_GIFT_CODE, icon: Gift, permission: 'giftcode.manage' },
   { label: 'Tin tức', href: ROUTES.ADMIN_NEWS, icon: Newspaper, permission: 'news.manage' },

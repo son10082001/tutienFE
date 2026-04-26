@@ -59,6 +59,7 @@ export function middleware(request: NextRequest) {
     '/admin/users': 'users.view',
     '/admin/deposit': 'deposits.view',
     '/admin/deposit-promotion': 'promotions.manage',
+    '/admin/cumulative-recharge': 'promotions.manage',
     '/admin/shop': 'shop.manage',
     '/admin/gift-code': 'giftcode.manage',
     '/admin/news': 'news.manage',
