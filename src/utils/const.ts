@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.ngutienky.com/api';
 
 /** QR SePay (khớp default backend) — fallback khi API chưa trả `qrTemplate`. */
 export const VIETQR_SEPAY_QR_TEMPLATE =

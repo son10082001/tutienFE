@@ -1,13 +1,14 @@
 'use client';
 
 import {
+  adminUploadCumulativeRechargeGiftImage,
   useAdminCreateCumulativeRechargeMilestone,
   useAdminCumulativeRechargeMilestones,
   useAdminDeleteCumulativeRechargeMilestone,
   useAdminUpdateCumulativeRechargeMilestone,
 } from '@/api/cumulative-recharge';
 import type { CumulativeGiftEntry, CumulativeMilestoneAdmin } from '@/api/cumulative-recharge/types';
-import { adminUploadShopImage, useAdminExternalItems } from '@/api/shop';
+import { useAdminExternalItems } from '@/api/shop';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -296,7 +297,7 @@ export default function AdminCumulativeRechargePage() {
     if (!file) return;
     try {
       setUploadingCreateImage(true);
-      const res = await adminUploadShopImage(file);
+      const res = await adminUploadCumulativeRechargeGiftImage(file);
       setGifts((prev) => {
         const next = [...prev];
         next[idx] = { ...next[idx]!, imageUrl: res.url };
@@ -314,7 +315,7 @@ export default function AdminCumulativeRechargePage() {
     if (!file) return;
     try {
       setUploadingEditImage(true);
-      const res = await adminUploadShopImage(file);
+      const res = await adminUploadCumulativeRechargeGiftImage(file);
       setEditGifts((prev) => {
         const next = [...prev];
         next[idx] = { ...next[idx]!, imageUrl: res.url };

@@ -1,9 +1,20 @@
 import { axiosInstance } from '../axios';
+import { normalizeApiMediaUrl } from '../media-url';
 import type { CreateSupportTicketInput, MySupportTicketsResponse, SupportChannel, SupportMetaResponse } from './types';
+
+function normalizeSupportChannel(channel: SupportChannel): SupportChannel {
+  return {
+    ...channel,
+    icon: normalizeApiMediaUrl(channel.icon),
+  };
+}
 
 export const getSupportMeta = async (): Promise<SupportMetaResponse> => {
   const { data } = await axiosInstance.get<SupportMetaResponse>('/support/meta');
-  return data;
+  return {
+    ...data,
+    channels: Array.isArray(data?.channels) ? data.channels.map(normalizeSupportChannel) : [],
+  };
 };
 
 export const createSupportTicket = async (payload: CreateSupportTicketInput) => {
@@ -20,7 +31,10 @@ export const getMySupportTickets = async (page = 1, limit = 10): Promise<MySuppo
 
 export const getAdminSupportChannels = async (): Promise<{ items: SupportChannel[] }> => {
   const { data } = await axiosInstance.get<{ items: SupportChannel[] }>('/admin/support/channels');
-  return data;
+  return {
+    ...data,
+    items: Array.isArray(data?.items) ? data.items.map(normalizeSupportChannel) : [],
+  };
 };
 
 export const createAdminSupportChannel = async (payload: {
@@ -41,7 +55,10 @@ export const uploadAdminSupportIcon = async (file: File): Promise<{ imageUrl: st
   const { data } = await axiosInstance.post<{ imageUrl: string }>('/admin/support/upload-icon', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
-  return data;
+  return {
+    ...data,
+    imageUrl: normalizeApiMediaUrl(data?.imageUrl) ?? '',
+  };
 };
 
 export const updateAdminSupportChannel = async (
@@ -49,6 +66,10 @@ export const updateAdminSupportChannel = async (
   payload: { name?: string; url?: string; icon?: string | null; isActive?: boolean; sortOrder?: number }
 ) => {
   const { data } = await axiosInstance.patch(`/admin/support/channels/${encodeURIComponent(id)}`, payload);
+  if (data && typeof data === 'object' && 'icon' in (data as Record<string, unknown>)) {
+    const typed = data as SupportChannel;
+    return normalizeSupportChannel(typed);
+  }
   return data;
 };
 

@@ -41,3 +41,7 @@ export type CumulativeRechargeStateResponse = {
   servers: CumulativeRechargeServer[];
   characters: CumulativeRechargeCharacter[];
 };
+
+export type UploadCumulativeRechargeGiftImageResponse = {
+  url: string;
+};
