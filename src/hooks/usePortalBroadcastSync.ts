@@ -24,6 +24,7 @@ import { notifySuccess } from '@/utils/notify';
  */
 export function usePortalBroadcastSync(): void {
   const lastSessionIdRef = useRef<string | null>(null);
+  const isSyncingRef = useRef(false);
 
   useEffect(() => {
     getOrCreateDeviceGroupId();
@@ -50,6 +51,19 @@ export function usePortalBroadcastSync(): void {
     sessionSync.listenBroadcast(async (data: FirebaseBroadcastData | null) => {
       if (!data || !data.userId) return;
       if (String(data.platform ?? '') === FIREBASE_PLATFORM_PORTAL) return;
+      if (isSyncingRef.current) return;
+
+      const sessionStorageKey = 'portal_sync_last_processed_session';
+      const normalizedSessionId = String(data.sessionId ?? '');
+      const fallbackSessionId =
+        normalizedSessionId || `${String(data.userId)}:${String(data.timestamp ?? data.password ?? '')}`;
+      if (!fallbackSessionId) return;
+
+      if (typeof window !== 'undefined') {
+        const lastProcessed = window.sessionStorage.getItem(sessionStorageKey);
+        if (lastProcessed === fallbackSessionId) return;
+      }
+
       if (data.sessionId && data.sessionId === lastSessionIdRef.current) return;
       lastSessionIdRef.current = data.sessionId || null;
 
@@ -59,6 +73,7 @@ export function usePortalBroadcastSync(): void {
       if (currentUserId === String(data.userId)) return;
 
       try {
+        isSyncingRef.current = true;
         console.log('[FirebaseSync] broadcast login from game → syncing to portal');
         const loginData = await signIn({
           userId: String(data.userId),
@@ -79,6 +94,9 @@ export function usePortalBroadcastSync(): void {
         } as UserInfoResponse;
 
         useAuthStore.getState().login(loginData.accessToken, '', userInfo);
+        if (typeof window !== 'undefined') {
+          window.sessionStorage.setItem(sessionStorageKey, fallbackSessionId);
+        }
         notifySuccess('Đồng bộ thành công', 'Đăng nhập từ Game đã được đồng bộ.');
         setTimeout(() => {
           if (typeof window !== 'undefined') {
@@ -87,6 +105,8 @@ export function usePortalBroadcastSync(): void {
         }, 300);
       } catch (err) {
         console.error('[FirebaseSync] auto-login from broadcast failed', err);
+      } finally {
+        isSyncingRef.current = false;
       }
     });
 
